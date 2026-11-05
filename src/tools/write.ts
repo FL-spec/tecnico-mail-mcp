@@ -125,6 +125,7 @@ async function deliverNow(
     info = await transport.sendMail({ envelope: built.envelope, raw: built.delivered });
   } catch (raw) {
     if (raw instanceof MailError) throw raw;
+    if (toMailError(raw).code === "auth") session.recordAuthFailure(toMailError(raw));
     if (!wasDefinitelyNotSent(raw)) {
       throw new MailError(
         "network",
