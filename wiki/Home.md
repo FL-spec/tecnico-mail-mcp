@@ -1,9 +1,7 @@
 # Home
 
-> `/fl-bootstrap` fills this in with the project's real name and summary, and `/fl-pm` keeps it
-> current. A doc that isn't linked from here or from `_Sidebar.md` doesn't exist.
-
-**[Project name]**—_[one-line summary]._
+**tecnico-mail-mcp**—an unofficial MCP server, run locally, that connects a person's own Técnico
+mailbox to their AI client.
 
 ## Start here
 
@@ -14,23 +12,26 @@
 ## Product
 
 - [Master PRD](prd/00-master-prd.md)
-- _child PRDs—one per module_
-- [Functional decisions (FDRs)](prd/decisions/0000-template.md)
+- [Server PRD](prd/server.md)
+- [2026-11-05—Sending stays off until the user turns it on](prd/decisions/2026-11-05-sending-off-by-default.md)
+- [FDR template](prd/decisions/0000-template.md)
 
 ## Architecture
 
 - [Architecture](architecture/00-architecture.md)
-- [Architecture decisions (ADRs)](architecture/decisions/0000-template.md)
+- [2026-11-05—Run locally, never hosted](architecture/decisions/2026-11-05-local-only.md)
+- [2026-11-05—TypeScript with a Desktop Extension as the main install](architecture/decisions/2026-11-05-typescript-and-mcpb.md)
+- [2026-11-05—Optional keychain login for npx users](architecture/decisions/2026-11-05-optional-keychain-login.md)
 - [2026-09-07—Single entry point and two delivery lanes](architecture/decisions/2026-09-07-single-entry-two-lanes.md)
+- [ADR template](architecture/decisions/0000-template.md)
 
 ## Contracts
 
-Technical contracts live outside the wiki, in **`specs/`**—one file per module, plus
-`specs/00-contracts.md` for anything held between two or more modules.
+Technical contracts live outside the wiki, in **`specs/`**.
 
 ## Plans
 
-- _open plans appear here as `plans/<NN>-<slug>/0-plan_map.md`_
+- [01—v1 release](plans/01-v1-release/0-plan_map.md)
 
 ## Reports
 

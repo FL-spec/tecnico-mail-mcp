@@ -1,0 +1,73 @@
+{
+  "name": "tecnico-mail-mcp",
+  "version": "0.0.0",
+  "description": "Unofficial MCP server that connects your own Técnico (IST) mailbox to Claude and other AI clients. Runs locally.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "imap",
+    "smtp",
+    "email",
+    "tecnico",
+    "ist",
+    "claude"
+  ],
+  "homepage": "https://github.com/FL-spec/tecnico-mail-mcp#readme",
+  "bugs": "https://github.com/FL-spec/tecnico-mail-mcp/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FL-spec/tecnico-mail-mcp.git"
+  },
+  "license": "MIT",
+  "author": "Francisco Livraghi",
+  "type": "module",
+  "bin": {
+    "tecnico-mail-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist/index.js",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "fflate": "0.8.3",
+    "html-to-text": "10.0.1",
+    "imapflow": "2.10.2",
+    "mailparser": "3.14.2",
+    "nodemailer": "10.3.1",
+    "unpdf": "2.1.0",
+    "zod": "4.6.7"
+  },
+  "optionalDependencies": {
+    "@napi-rs/keyring": "2.1.2"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
+    "@biomejs/biome": "2.6.5",
+    "@types/html-to-text": "9.0.4",
+    "@types/mailparser": "3.9.0",
+    "@types/node": "24.19.2",
+    "@types/nodemailer": "8.0.2",
+    "@types/smtp-server": "3.5.13",
+    "@vitest/coverage-v8": "5.1.0",
+    "esbuild": "0.28.2",
+    "selfsigned": "5.5.0",
+    "smtp-server": "3.21.3",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  }
+}

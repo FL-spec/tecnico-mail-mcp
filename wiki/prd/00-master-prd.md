@@ -1,39 +1,43 @@
 # Master PRD
 
-> Seeded by `/fl-bootstrap`, filled in by a `/fl-pm` synthesize pass. **Don't invent
-> requirements**—an empty section is honest; a fabricated one is a trap for the next
-> implementer.
-
 ## Vision & Goals
 
-_[What this project is for, and what "good" looks like.]_
+Any Técnico student or staff member can connect their own mailbox to their AI client in under two
+minutes, on their own machine, with their password staying on that machine.
 
 ## Actors
 
 | Actor | Wants |
 | --- | --- |
-| _(actor)_ | _(outcome)_ |
+| Student on Claude Desktop | a double-click install with no terminal |
+| Developer on Claude Code, Cursor, or VS Code | a one-line install and control over access |
+| Cautious user | reading and drafts, with nothing sent without review |
+| DSI | no bulk mail, no server strain, and no shared credentials |
 
 ## Cross-Module Scope
 
 **In scope**
 
-- _(…)_
+- Reading, searching, and drafting mail. Sending, flags, and moves.
+- Text extraction from PDF, DOCX and plain-text attachments.
 
 **Out of scope**
 
-- _(…)_
+- A hosted version, because it would collect other people's passwords.
+- Permanent delete, bulk sending, and sending attachments.
+- Fénix data. It needs OAuth 2.0 and is a separate phase.
 
 ## Success Criteria
 
-- _(observable, not aspirational)_
+- The Desktop Extension installs with no other software on the machine.
+- Every tool passes against a real Dovecot server in CI.
+- `doctor` passes on a real Técnico account before each release.
 
 ## Child PRDs
 
-> One per module in `.sdlc/sdlc-config.yml`'s `modules:`.
-
-- _(none yet)_
+- [Server](server.md)
 
 ## Open Questions
 
-- _(none yet)_
+- The server advertises `OAUTHBEARER` and `XOAUTH2`, but DSI documents only normal passwords. If
+  DSI opens OAuth 2.0 to outside applications, a password would no longer be needed.

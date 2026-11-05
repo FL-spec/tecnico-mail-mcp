@@ -29,3 +29,7 @@ __pycache__/
 # Vale package cache — restored by `vale sync`
 .vale/styles/Google/
 .vale/styles/signs-of-ai-writing/
+coverage/
+*.mcpb
+*.tgz
+.claude/settings.local.json

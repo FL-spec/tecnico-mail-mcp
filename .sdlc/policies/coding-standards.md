@@ -4,32 +4,29 @@ Repo-specific conventions the `fl-*` skills bind to. This is the **single source
 for them—a skill points here rather than repeating any of this inline, and every coder and
 reviewer subagent reads it before writing a line.
 
-`/fl-bootstrap` fills in the bracketed sections from your answers. Keep it current: a
-convention that lives only in your head is one the agents break.
+Keep it current: a convention that lives only in your head is one the agents break.
 
 ## Shape
 
-> One row per module in `.sdlc/sdlc-config.yml`'s `modules:` list.
-
 | Module | Stack | Role |
 |---|---|---|
-| `[web/]` | `[TypeScript · Next.js]` | `[what it owns]` |
+| `src/` | TypeScript, Node 22 or later, ESM | the MCP server and its command line |
 
 ## Stack conventions
 
-> Per module: the libraries that are already the answer, so an agent extends the existing
-> pattern instead of introducing a second library for the same job. Be specific—"use the
-> existing patterns" is not a convention, "`zod` for schema validation, never `yup` or hand-rolled
-> guards" is.
-
-- **`[module]`**—`[linter + config: e.g. eslint, or ruff line-length 100 target py312 rules E F I UP N C B]`.
-  `[logging]`, `[schema/validation]`, `[data access]`. `[Anything a new file must follow.]`
+- **`src/`**: Biome for lint and format (`biome.json`), `tsc` in strict mode for types, Vitest for
+  tests, esbuild for the build.
+- `imapflow` for IMAP, `nodemailer` for SMTP and message building, `mailparser` for MIME, and
+  `html-to-text` for HTML. `zod` for tool input schemas. Don't add a second library for any of
+  these jobs.
+- Log to stderr only, through `src/log.ts`. Stdout belongs to the MCP protocol.
+- Errors that reach a user are `MailError` from `src/errors.ts`, with a cause, plus a next step.
 
 ## Configuration and secrets
 
-- Config and credentials come from environment variables or a gitignored `.env` only.
-- Every module reads its own settings module; validate env at startup and fail loudly.
-- `[Name the settings module per module.]`
+- Settings come from environment variables, then the user's config file, in `src/config.ts`.
+- The password comes from an environment variable or the OS keychain. It never reaches a file,
+  a log line or an error message.
 
 ## Commits
 
@@ -69,14 +66,10 @@ Prose in `wiki/`, `specs/`, and the root documents follows
 
 ## Open gaps
 
-> Tracked here rather than silently worked around, because fixing them is an app-code or
-> infrastructure change, not a doc change. A gate that is a `TODO` in `sdlc-config.yml` gets
-> a line here, and a subagent that hits one reports it rather than treating it as passed.
-
-- _(none yet)_
+- Nothing tests against a real Técnico mailbox in CI, because that needs a real password. Run
+  `tecnico-mail-mcp doctor` by hand before each release.
 
 ## Gotchas
 
-> Appended during builds. Real, surprising things that bit us—not general advice.
-
-- _(none yet)_
+- An `ImapFlow` instance can't be reused after it closes, and a missing `error` listener crashes
+  the process. `src/imap/session.ts` owns both rules, so no other file creates a client.

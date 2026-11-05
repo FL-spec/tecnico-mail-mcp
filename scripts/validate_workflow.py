@@ -114,7 +114,7 @@ def _markdown_files(root: Path) -> list[Path]:
     return [
         path
         for path in root.rglob("*.md")
-        if ".git/" not in str(path) and ".worktrees/" not in str(path)
+        if not any(part in str(path) for part in (".git/", ".worktrees/", "node_modules/"))
     ]
 
 
@@ -134,7 +134,7 @@ def _check_parseable(root: Path, errors: list[str]) -> None:
             errors.append(f"invalid JSON {path.relative_to(root)}: {exc}")
 
     for path in root.rglob("*.toml"):
-        if ".git/" in str(path):
+        if ".git/" in str(path) or "node_modules" in str(path):
             continue
         try:
             tomllib.loads(path.read_text(encoding="utf-8"))
