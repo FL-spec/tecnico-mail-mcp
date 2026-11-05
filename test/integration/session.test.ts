@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { checkImap, checkSmtp } from "../../src/connectivity.js";
+import { MailError } from "../../src/errors.js";
 import { ImapSession } from "../../src/imap/session.js";
 import { freshAccount, startSmtpServer } from "./helpers.js";
 
@@ -26,6 +27,48 @@ describe("ImapSession against Dovecot", () => {
     const start = Date.now();
     await expect(session.run((c) => c.list())).rejects.toBe(first);
     expect(Date.now() - start).toBeLessThan(500);
+    await session.close();
+  });
+
+  test("a wrong password counts even when the operation already timed out", async () => {
+    const session = new ImapSession({ ...freshAccount(), password: "wrong" }, { timeoutMs: 1 });
+    await expect(session.run((c) => c.list())).rejects.toMatchObject({ code: "network" });
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+    await session.close();
+  });
+
+  test("a read retry after a wrong password makes no further login", async () => {
+    const session = new ImapSession({ ...freshAccount(), password: "wrong" });
+    let calls = 0;
+    await expect(
+      session.run(
+        async () => {
+          calls += 1;
+        },
+        { retry: true },
+      ),
+    ).rejects.toMatchObject({ code: "auth" });
+    expect(calls).toBe(0);
+    await session.close();
+  });
+
+  test("a rejected SMTP login stops IMAP logins too", async () => {
+    const session = new ImapSession(freshAccount());
+    session.recordAuthFailure(new MailError("auth", "refused"));
+    await expect(session.run(async () => 1)).rejects.toMatchObject({ code: "auth" });
+    await session.close();
+  });
+
+  test("a timed-out operation that was still connecting never starts", async () => {
+    const session = new ImapSession(freshAccount(), { timeoutMs: 1 });
+    let started = false;
+    await expect(
+      session.run(async () => {
+        started = true;
+      }),
+    ).rejects.toMatchObject({ code: "network" });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(started).toBe(false);
     await session.close();
   });
 

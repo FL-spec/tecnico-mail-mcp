@@ -4,7 +4,7 @@ import { folderRole } from "../imap/folders.js";
 import type { ImapSession } from "../imap/session.js";
 import { extractText } from "../mail/attachments.js";
 import { parseMail } from "../mail/parse.js";
-import { sanitizeText, truncate } from "../mail/sanitize.js";
+import { sanitizeLine, truncate } from "../mail/sanitize.js";
 
 export const MAX_RESULTS = 50;
 const MAX_FOLDERS = 200;
@@ -77,8 +77,9 @@ function summarize(
   addresses: { name?: string | undefined; address?: string | undefined }[] | undefined,
 ): string[] {
   return (addresses ?? []).map((a) => {
-    const name = sanitizeText(a.name ?? "");
-    return name && a.address ? `${name} <${a.address}>` : (a.address ?? name);
+    const name = sanitizeLine(a.name ?? "");
+    const address = sanitizeLine(a.address ?? "");
+    return name && address ? `${name} <${address}>` : address || name;
   });
 }
 
@@ -115,7 +116,7 @@ export async function searchMessages(session: ImapSession, input: SearchInput) {
           date: date ? new Date(date).toISOString() : null,
           from: summarize(m.envelope?.from),
           to: summarize(m.envelope?.to),
-          subject: sanitizeText(m.envelope?.subject ?? ""),
+          subject: sanitizeLine(m.envelope?.subject ?? ""),
           unread: !m.flags?.has("\\Seen"),
           flagged: m.flags?.has("\\Flagged") ?? false,
           has_attachments: hasAttachments(m.bodyStructure),

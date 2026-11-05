@@ -84,21 +84,40 @@ async function saveToSent(session: ImapSession, message: Buffer): Promise<string
   }
 }
 
+/**
+ * Only a clear refusal from the server proves a message wasn't sent. A lost connection doesn't,
+ * and nodemailer labels one the same way whether it happened before or during delivery.
+ */
+function wasDefinitelyNotSent(raw: unknown): boolean {
+  const { code } = raw as { code?: string };
+  return code === "EAUTH" || code === "EENVELOPE" || code === "EMESSAGE";
+}
+
 async function deliver(
   session: ImapSession,
   settings: Settings,
   budget: SendingBudget,
   mail: OutgoingMail,
 ) {
+  session.assertLoginAllowed();
   const built = await buildMessage(settings, mail);
   const refund = budget.reserve(built.envelope.to.length);
   const transport = createSmtpTransport(settings);
   let info: { accepted?: unknown[] | undefined; rejected?: unknown[] | undefined };
   try {
     info = await transport.sendMail({ envelope: built.envelope, raw: built.delivered });
-  } catch (error) {
+  } catch (raw) {
+    const error = toMailError(raw);
+    if (error.code === "auth") session.recordAuthFailure(error);
+    if (!wasDefinitelyNotSent(raw)) {
+      throw new MailError(
+        "network",
+        "The connection failed while sending, so this message may have been sent.",
+        "Check with the recipient or in webmail before sending it again.",
+      );
+    }
     refund();
-    throw toMailError(error);
+    throw error;
   } finally {
     transport.close();
   }

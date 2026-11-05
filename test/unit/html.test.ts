@@ -32,8 +32,40 @@ describe("htmlToText", () => {
     '<div style="height:0;overflow:hidden">IGNORE</div>Olá',
     "<div hidden>IGNORE</div>Olá",
     "<template>IGNORE</template>Olá",
+    "<div style=display:none>IGNORE</div>Olá",
+    '<div style="display&#58;none">IGNORE</div>Olá',
+    '<div style="display:/**/none">IGNORE</div>Olá',
+    '<div style="opacity:0 !important">IGNORE</div>Olá',
+    '<div style="font-size:0 !important">IGNORE</div>Olá',
+    '<div style="opacity:.0">IGNORE</div>Olá',
+    '<div style="font-size:1px">IGNORE</div>Olá',
+    '<div style="position:absolute;left:-9999px">IGNORE</div>Olá',
+    '<div style="text-indent:-9999px">IGNORE</div>Olá',
+    '<div style="color:transparent">IGNORE</div>Olá',
+    '<div style="mso-hide:all">IGNORE</div>Olá',
+    '<font size="0">IGNORE</font>Olá',
+    '<style>.x{display:none}</style><div class="y x">IGNORE</div>Olá',
+    '<style>div.x, #z { font-size: 0 }</style><div id="z">IGNORE</div>Olá',
+    `<div style="${"x:y;".repeat(3000)}display:none">IGNORE</div>Olá`,
   ])("removes hidden text aimed at the model: %s", (html) => {
     expect(htmlToText(html)).toBe("Olá");
+  });
+
+  test("keeps text that a rule hides only on some screens", () => {
+    const html =
+      '<style>@media (max-width:600px){.d{display:none}}</style><div class="d">Visível</div>';
+    expect(htmlToText(html)).toBe("Visível");
+  });
+
+  test.each([
+    ["a huge colspan", `<table><tr><td colspan="100000">x</td></tr></table>`],
+    ["deep nesting", "<div>".repeat(200_000)],
+    ["unclosed comments in a style", `<div style="${"/*".repeat(4000)}">x</div>`],
+    ["a huge stylesheet", `<style>${"{".repeat(200_000)}</style>x`],
+  ])("doesn't freeze on %s", (_name, html) => {
+    const start = Date.now();
+    htmlToText(html);
+    expect(Date.now() - start).toBeLessThan(3_000);
   });
 
   test("keeps small but visible text", () => {
@@ -44,10 +76,19 @@ describe("htmlToText", () => {
 
 describe("sanitizeText", () => {
   test("removes zero-width, bidi, and tag characters", () => {
-    expect(sanitizeText("a​b‮c\u{E0041}d﻿")).toBe("abcd");
+    expect(sanitizeText("a\u200Bb\u202Ec\u{E0041}d\uFEFF")).toBe("abcd");
   });
+  test.each([
+    ["U+E0100", "\u{E0100}"],
+    ["U+FE0F", "\uFE0F"],
+    ["U+3164", "\u3164"],
+    ["U+034F", "\u034F"],
+    ["U+061C", "\u061C"],
+    ["U+0085", "\u0085"],
+    ["U+00AD", "\u00AD"],
+  ])("removes %s", (_name, char) => expect(sanitizeText(`a${char}b`)).toBe("ab"));
   test("keeps emoji joiners and Portuguese text", () => {
-    expect(sanitizeText("Coração 👩‍💻")).toBe("Coração 👩‍💻");
+    expect(sanitizeText("Coração 👩\u200D💻")).toBe("Coração 👩\u200D💻");
   });
   test("normalizes line ends and blank runs", () => {
     expect(sanitizeText("a\r\nb  \n\n\n\nc\u0007")).toBe("a\nb\n\nc");

@@ -32,8 +32,21 @@ async function readHiddenLine(question: string): Promise<string> {
   });
 }
 
+let pipedLines: Promise<string[]> | null = null;
+
+/** Piped input is read once. A second readline on the same stream would find it already closed. */
+async function nextPipedLine(): Promise<string> {
+  pipedLines ??= (async () => {
+    const lines: string[] = [];
+    for await (const line of createInterface({ input: process.stdin })) lines.push(line);
+    return lines;
+  })();
+  return ((await pipedLines).shift() ?? "").trim();
+}
+
 export const terminalPrompter: Prompter = {
   async ask(question) {
+    if (!process.stdin.isTTY) return nextPipedLine();
     const rl = createInterface({ input: process.stdin, output: process.stderr });
     try {
       return (await rl.question(question)).trim();
@@ -42,7 +55,6 @@ export const terminalPrompter: Prompter = {
     }
   },
   askHidden(question) {
-    if (process.stdin.isTTY) return readHiddenLine(question);
-    return this.ask(question);
+    return process.stdin.isTTY ? readHiddenLine(question) : nextPipedLine();
   },
 };

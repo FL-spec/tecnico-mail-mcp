@@ -140,6 +140,30 @@ describe("write tools against Dovecot and a TLS SMTP server", () => {
     expect(() => budget.reserve(60)).not.toThrow();
   });
 
+  test("after a rejected SMTP login, a second send makes no login attempt", async () => {
+    const wrong = { ...account, password: "wrong" };
+    const input = { to: ["a@x.pt"], subject: "s", body: "b" };
+    await expect(sendMessage(session, wrong, budget, input)).rejects.toMatchObject({
+      code: "auth",
+    });
+    const start = Date.now();
+    await expect(sendMessage(session, wrong, budget, input)).rejects.toMatchObject({
+      code: "auth",
+    });
+    expect(Date.now() - start).toBeLessThan(100);
+  });
+
+  test("a connection lost during sending warns against resending and keeps the budget", async () => {
+    const dropping = await startSmtpServer(account.password, { dropOnData: true });
+    const settings = { ...account, smtp: { host: "localhost", port: dropping.port } };
+    await expect(
+      sendMessage(session, settings, budget, { to: ["a@x.pt"], subject: "s", body: "b" }),
+    ).rejects.toThrow(/may have been sent/);
+    budget.reserve(59);
+    expect(() => budget.reserve(1)).toThrow(/per hour/);
+    await dropping.stop();
+  });
+
   test("a failed Sent copy still reports the send and warns against resending", async () => {
     const broken = new ImapSession({ ...account, imap: { host: "localhost", port: 1 } });
     const result = await sendMessage(broken, account, budget, {

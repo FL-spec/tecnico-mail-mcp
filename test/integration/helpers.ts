@@ -46,7 +46,10 @@ export interface ReceivedMail {
 }
 
 /** A local SMTP server with TLS and password login, standing in for Técnico's Postfix. */
-export async function startSmtpServer(password: string): Promise<{
+export async function startSmtpServer(
+  password: string,
+  options: { dropOnData?: boolean } = {},
+): Promise<{
   port: number;
   received: ReceivedMail[];
   stop: () => Promise<void>;
@@ -62,6 +65,11 @@ export async function startSmtpServer(password: string): Promise<{
       else callback(new Error("Invalid credentials"));
     },
     onData(stream, session, callback) {
+      if (options.dropOnData) {
+        (session as unknown as { socket?: { destroy(): void } }).socket?.destroy();
+        for (const connection of server.connections) connection._socket.destroy();
+        return;
+      }
       const chunks: Buffer[] = [];
       stream.on("data", (chunk: Buffer) => chunks.push(chunk));
       stream.on("end", () => {

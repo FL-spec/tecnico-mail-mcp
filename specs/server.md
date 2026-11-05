@@ -58,10 +58,16 @@ None. This is the only module.
   `BODY.PEEK`.
 - `SRV-INV-2`: the password appears in no log, tool result, or error message.
 - `SRV-INV-3`: TLS certificates are always verified. No option turns verification off.
-- `SRV-INV-4`: after a rejected login, the session makes no further login attempt until restart.
+- `SRV-INV-4`: after a rejected login, on IMAP or SMTP, the server makes no further login attempt
+  until restart.
 - `SRV-INV-5`: operations on the IMAP connection run one at a time, at least 100 ms apart.
 - `SRV-INV-6`: only idempotent reads retry after a dropped connection.
-- `SRV-INV-7`: hidden HTML elements and invisible Unicode characters never reach a tool result.
+- `SRV-INV-7`: elements hidden by the `hidden` attribute, inline styles, or top-level `.class` and
+  `#id` rules never reach a tool result, nor do default-ignorable or format Unicode characters.
+  The body comes from the HTML part when one has text. White-on-white text isn't detected (see §7).
+- `SRV-INV-14`: a send that fails after the server may have taken the message says it may have been
+  sent, and keeps its budget. Parsing a hostile message runs in linear time, so it can't freeze
+  the server.
 - `SRV-INV-8`: attachment content is never written to disk.
 - `SRV-INV-9`: `send_message` and `reply` exist only in `full` mode.
 - `SRV-INV-10`: `Bcc` never appears in the delivered message.
@@ -97,6 +103,8 @@ the config file, which `login` writes to `$XDG_CONFIG_HOME/tecnico-mail-mcp/conf
 
 - A real Técnico account has not run this server. CI uses Dovecot 2.4.1, the same server family,
   and a local SMTP server in place of Postfix.
+- Text colored to match its background still reaches the model, because telling that apart from
+  normal design needs a browser's layout engine.
 - The sending budget lives in memory, so restarting the server resets it.
 - UIDs assume a stable `UIDVALIDITY`. If the server resets it, an old UID could name another
   message. A new search fixes this.
