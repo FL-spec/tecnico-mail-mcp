@@ -97,7 +97,7 @@ describe("htmlToText", () => {
   ])("doesn't freeze on %s", (_name, html) => {
     const start = Date.now();
     htmlToText(html);
-    expect(Date.now() - start).toBeLessThan(10_000);
+    expect(Date.now() - start).toBeLessThan(3_000);
   });
 
   test("keeps small but visible text", () => {
