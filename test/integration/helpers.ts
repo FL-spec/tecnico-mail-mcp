@@ -52,15 +52,19 @@ export async function startSmtpServer(
 ): Promise<{
   port: number;
   received: ReceivedMail[];
+  authAttempts: () => number;
+  resetAuthAttempts: () => void;
   stop: () => Promise<void>;
 }> {
   const received: ReceivedMail[] = [];
+  let attempts = 0;
   const server = new SMTPServer({
     secure: true,
     key: inject("tlsKey"),
     cert: inject("tlsCert"),
     authMethods: ["PLAIN", "LOGIN"],
     onAuth(auth, _session, callback) {
+      attempts += 1;
       if (auth.password === password) callback(null, { user: auth.username });
       else callback(new Error("Invalid credentials"));
     },
@@ -90,6 +94,10 @@ export async function startSmtpServer(
   return {
     port: address.port,
     received,
+    authAttempts: () => attempts,
+    resetAuthAttempts: () => {
+      attempts = 0;
+    },
     stop: () => new Promise((resolve) => server.close(() => resolve())),
   };
 }

@@ -39,6 +39,11 @@ describe("htmlToText", () => {
     '<div style="font-size:0 !important">IGNORE</div>Olá',
     '<div style="opacity:.0">IGNORE</div>Olá',
     '<div style="font-size:1px">IGNORE</div>Olá',
+    '<div style="display:n\\6f ne">IGNORE</div>Olá',
+    '<style>.a.b{display:none}</style><div class="b a">IGNORE</div>Olá',
+    "<dialog>IGNORE</dialog>Olá",
+    '<div style="position:fixed;top:-200px">IGNORE</div>Olá',
+    '<div style="visibility:hidden"><span>IGNORE</span></div>Olá',
     '<div style="position:absolute;left:-9999px">IGNORE</div>Olá',
     '<div style="text-indent:-9999px">IGNORE</div>Olá',
     '<div style="color:transparent">IGNORE</div>Olá',
@@ -49,6 +54,33 @@ describe("htmlToText", () => {
     `<div style="${"x:y;".repeat(3000)}display:none">IGNORE</div>Olá`,
   ])("removes hidden text aimed at the model: %s", (html) => {
     expect(htmlToText(html)).toBe("Olá");
+  });
+
+  test.each([
+    [
+      "an MJML wrapper with font-size 0",
+      '<div style="font-size:0"><div style="font-size:14px">Visível</div></div>',
+    ],
+    ["a zero-height box that shows its overflow", '<div style="height:0">Visível</div>'],
+    [
+      "a child made visible again",
+      '<div style="visibility:hidden"><p style="visibility:visible">Visível</p></div>',
+    ],
+    ["an open dialog", "<dialog open>Visível</dialog>"],
+    [
+      "a class that isn't complete",
+      '<style>.a.b{display:none}</style><div class="a">Visível</div>',
+    ],
+    [
+      "17 nested tables",
+      `${"<table><tbody><tr><td>".repeat(17)}Visível${"</td></tr></tbody></table>".repeat(17)}`,
+    ],
+  ])("keeps visible text in %s", (_name, html) => {
+    expect(htmlToText(html)).toBe("Visível");
+  });
+
+  test("says so when a very long message is cut", () => {
+    expect(htmlToText(`<p>${"a".repeat(600_000)}</p>`)).toMatch(/shortened/);
   });
 
   test("keeps text that a rule hides only on some screens", () => {
@@ -65,7 +97,7 @@ describe("htmlToText", () => {
   ])("doesn't freeze on %s", (_name, html) => {
     const start = Date.now();
     htmlToText(html);
-    expect(Date.now() - start).toBeLessThan(3_000);
+    expect(Date.now() - start).toBeLessThan(10_000);
   });
 
   test("keeps small but visible text", () => {

@@ -68,6 +68,16 @@ describe("parseMail", () => {
     expect(mail.body).toBe("Texto simples");
   });
 
+  test("keeps both parts of a multipart/mixed message, as a mail client shows both", async () => {
+    const mail = await parseMail(
+      Buffer.from(
+        'Subject: x\r\nContent-Type: multipart/mixed; boundary="m"\r\n\r\n--m\r\nContent-Type: text/plain\r\n\r\nParte simples\r\n--m\r\nContent-Type: text/html\r\n\r\n<p>Parte html</p>\r\n--m--\r\n',
+      ),
+    );
+    expect(mail.body).toContain("Parte simples");
+    expect(mail.body).toContain("Parte html");
+  });
+
   test("a line break in a hostile subject or name doesn't survive", async () => {
     const mail = await parseMail(
       Buffer.from(

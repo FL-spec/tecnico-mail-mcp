@@ -11,8 +11,16 @@ export const MAX_RECIPIENTS_PER_DAY = 200;
 /** Counts recipients sent by this running server. Restarting the server resets the count. */
 export class SendingBudget {
   #sends: { at: number; recipients: number }[] = [];
+  #queue: Promise<unknown> = Promise.resolve();
 
   constructor(private readonly now: () => number = Date.now) {}
+
+  /** Runs sends one at a time, so a rejected login is seen before the next one tries. */
+  serialize<T>(work: () => Promise<T>): Promise<T> {
+    const next = this.#queue.then(work);
+    this.#queue = next.catch(() => undefined);
+    return next;
+  }
 
   /** Reserves the recipients before anything is sent. Returns a function that gives them back. */
   reserve(recipients: number): () => void {

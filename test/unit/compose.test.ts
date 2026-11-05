@@ -25,6 +25,7 @@ const ORIGINAL: ParsedMail = {
   references: ["<m1@x>"],
   isMailingList: false,
   body: "Olá\nAté já",
+  bodyFromHtml: false,
   attachments: [],
   rawAttachments: [],
 };
