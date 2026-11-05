@@ -4,6 +4,6 @@
     "includes": ["src/**", "test/**", "scripts/**", "*.json", "*.ts", "!package-lock.json"]
   },
   "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
-  "linter": { "rules": { "preset": "none" } },
+  "linter": { "rules": { "preset": "recommended" } },
   "assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

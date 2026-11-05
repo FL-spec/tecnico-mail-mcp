@@ -10,7 +10,7 @@ const shared = {
   bundle: true,
   platform: "node",
   format: "esm",
-  target: "node22",
+  target: "node24",
   legalComments: "inline",
   define: { __VERSION__: JSON.stringify(version) },
 };

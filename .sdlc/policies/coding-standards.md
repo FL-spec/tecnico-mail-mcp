@@ -10,7 +10,7 @@ Keep it current: a convention that lives only in your head is one the agents bre
 
 | Module | Stack | Role |
 |---|---|---|
-| `src/` | TypeScript, Node 22 or later, ESM | the MCP server and its command line |
+| `src/` | TypeScript, Node 24 or later, ESM | the MCP server and its command line |
 
 ## Stack conventions
 

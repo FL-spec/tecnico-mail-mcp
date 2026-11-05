@@ -12,7 +12,7 @@ MIME in one family of libraries.
 
 ## Decision
 
-Write the server in TypeScript for Node 22 or later. Publish a `.mcpb` on every release as the
+Write the server in TypeScript for Node 24 or later, which Claude Desktop ships and `unpdf` needs. Publish a `.mcpb` on every release as the
 main install, and an npm package for other clients.
 
 ## Consequences
