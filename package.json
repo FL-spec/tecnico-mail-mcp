@@ -65,7 +65,7 @@
     "@biomejs/biome": "2.6.5",
     "@types/html-to-text": "9.0.4",
     "@types/mailparser": "3.9.0",
-    "@types/node": "24.19.2",
+    "@types/node": "26.6.6",
     "@types/nodemailer": "8.0.2",
     "@types/smtp-server": "3.5.13",
     "@vitest/coverage-v8": "5.1.0",
