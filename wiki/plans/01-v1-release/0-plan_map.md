@@ -1,6 +1,6 @@
 # 01-v1-release—plan map
 
-- **Epic:** none yet
+- **Epic:** #1
 - **Status:** active
 - **Date:** 2026-11-05
 
