@@ -18,7 +18,7 @@ evidence.
 | Bcc hidden; Sent copy; budget before network; send survives failed copy | #11 | S10 | test/integration/write-tools.test.ts; test/unit/budget.test.ts | | passing |
 | Threading; Re: never stacks; reply_all list guard | #12 | S11 | test/unit/compose.test.ts; test/integration/write-tools.test.ts | | passing |
 | Each mode has exactly its tools; annotations; UID caps; default has no send | #13 | S12 | test/unit/server.test.ts; test/integration/stdio.test.ts | | passing |
-| mcpb validate passes; bundle runs with no node_modules; tag makes a release | #14 | S13 | test/integration/stdio.test.ts; release run of v1.0.0-rc.1 | | pending |
+| mcpb validate passes; bundle runs with no node_modules; tag makes a release | #14 | S13 | test/integration/stdio.test.ts; release runs of v1.0.0-rc.1 to rc.3 | Checksums, attestation, and npx install checked by hand on rc.1 | passing |
 | Commands and claims verified; disclaimer and privacy note; community 100% | #15 | S14 | GitHub community profile API returned 100 | | passing |
 | Install in real Claude Desktop on clean Mac and Windows | #14 | S13 | none: needs a person | | blocked |
 | doctor on a real Técnico account | #4 | S3 | none: needs the owner's password | | blocked |

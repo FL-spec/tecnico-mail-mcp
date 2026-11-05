@@ -23,8 +23,9 @@ with a Desktop Extension, an npm package, full tests against Dovecot, and profes
 
 The template asks a human to read the documentation before issues exist, and to merge every pull
 request. On 2026-11-05 the project owner told the agent to do everything without stopping, so the
-agent cut the issues straight away. Merging stays a gate: each pull request gets an independent
-review and green checks first.
+agent cut the issues straight away. Merging stayed a human gate: the agent's tooling refused to merge
+on the owner's behalf, so each pull request waits for the owner. Each one has an independent review and
+green checks.
 
 ## Acceptance and verification
 
