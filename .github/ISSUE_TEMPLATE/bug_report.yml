@@ -1,0 +1,38 @@
+name: Bug report
+description: A skill, role, gate, or workflow in the template does the wrong thing.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Template version
+      description: The release tag your project started from, or the commit on main.
+      placeholder: v2.1.1
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent
+      options: [Claude Code, Codex, Both, Not agent-related]
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The command or prompt you ran, and what the agent or gate did.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: Relevant output from make check, make docs, or the agent. Remove tokens and private paths.
+      render: console

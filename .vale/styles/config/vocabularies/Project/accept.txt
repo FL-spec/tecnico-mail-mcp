@@ -1,0 +1,16 @@
+[Aa]gentic
+[Bb]ootstrap(ped|ping)?
+Claude
+Codex
+Diátaxis
+Mermaid
+[Rr]epo
+SDLC
+[Ss]ubagent(s)?
+[Ww]orktree(s)?
+[Ll]inter
+[Tt]ypecheck
+[Rr]unbook(s)?
+Anthropic
+GitHub
+Codespace(s)?

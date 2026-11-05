@@ -1,0 +1,118 @@
+# Project configuration — the single source of truth for every identifier, path template
+# and command the fl-* skills use. Skills read from here; they never hardcode these values.
+#
+# A fresh clone of this template has placeholders in <ANGLE BRACKETS>. `/fl-bootstrap` fills
+# them in — run it before anything else. Any skill that finds a placeholder still in place
+# stops and sends you there.
+
+# --- Toolchain ---
+pm_tool: github
+wiki_tool: github
+
+# --- Wiki sync ---
+# wiki/ is the canonical in-repo source of truth; it is mirrored to the GitHub Wiki by
+# .github/workflows/sync-wiki.yml, which flattens wiki/'s directory tree via
+# .github/scripts/flatten_wiki.py (a GitHub wiki has no directories in its URL space).
+# Set enabled: false to keep wiki/ in-repo only — nothing else changes.
+wiki_sync:
+  enabled: true
+  source_path: "wiki"
+  target_branch: "main"
+  target: "github"
+  github:
+    workflow_path: ".github/workflows/sync-wiki.yml"
+    use_repo_wiki: true
+
+# --- Repository ---
+default_branch: main
+github:
+  host: "github.com"
+  owner: "<GITHUB_OWNER>"
+  repository: "<REPO_NAME>"
+  slug: "<GITHUB_OWNER>/<REPO_NAME>"
+
+  # --- Project board (optional) ---
+  # Issues and pull requests are required; the board is not. With enabled: false the skills
+  # skip every board move and track state through issue open/closed + PR state alone.
+  #
+  # `gh project` calls need the read:project + write:project token scopes. Check with
+  # `gh auth status`; add them with `gh auth refresh -s read:project,write:project`.
+  project:
+    enabled: false
+    number: <PROJECT_NUMBER>
+    id: "<PROJECT_ID>"
+    status_field_id: "<STATUS_FIELD_ID>"
+    statuses:
+      backlog: "<BACKLOG_OPTION_ID>"
+      ready: "<READY_OPTION_ID>"
+      in_progress: "<IN_PROGRESS_OPTION_ID>"
+      in_review: "<IN_REVIEW_OPTION_ID>"
+      done: "<DONE_OPTION_ID>"
+    # Derive every id above with:
+    #   gh project list --owner <GITHUB_OWNER>
+    #   gh project view <number> --owner <GITHUB_OWNER> --format json
+    #   gh project field-list <number> --owner <GITHUB_OWNER> --format json
+    # Re-derive with the same commands if a call 404s — recreating the project changes them.
+
+# --- Modules ---
+# The top-level directories a vertical slice can live in. One child PRD and one spec file
+# per module (see .sdlc/policies/wiki-conventions.md). /fl-bootstrap writes this list;
+# adding a module later means adding its PRD and spec in the same pass.
+modules: []
+#   - name: web        # example
+#     path: "web/"
+#     stack: "typescript"
+
+# --- Implementation loop ---
+implement:
+  worktree_path: ".worktrees/issue-{issue}"
+  branch: "{issue}-{slug}"
+  # Feasibility gate: one vertical slice at or under this many changed lines, tests included.
+  max_changed_loc: 300
+
+# --- Prototype ---
+# Throwaway code answering one design question. Its own worktree; never merges.
+prototype:
+  worktree_path: ".worktrees/prototype-{slug}"
+  branch: "prototype-{slug}"
+
+# --- Review ---
+review:
+  # Automated reviewers whose PR comments the feedback loop triages.
+  bots: ["Copilot"]
+
+# --- Quality gates ---
+# Run before every commit and by the reviewer subagent. One block per module, because
+# modules can be independently deployed with their own toolchains. A single-module repo
+# has exactly one block.
+#
+# /fl-bootstrap replaces this with the preset(s) for your stack. The three presets below
+# are the ones it chooses from — keep the block for the stack you use, delete the others,
+# and keep .github/workflows/ci.yml running the same commands.
+quality_gates: {}
+
+#   # --- Preset: TypeScript / Node (pnpm) ---
+#   <module>:
+#     test: "pnpm --filter <module> test"
+#     lint: "pnpm --filter <module> lint"
+#     typecheck: "pnpm --filter <module> typecheck"
+#     format_check: "pnpm --filter <module> format:check"
+#     build: "pnpm --filter <module> build"
+#
+#   # --- Preset: Python (uv + ruff + pytest) ---
+#   <module>:
+#     test: "cd <module> && uv run pytest"
+#     lint: "cd <module> && uv run ruff check src"
+#     typecheck: "cd <module> && uv run mypy src"
+#     format_check: "cd <module> && uv run ruff format --check src"
+#
+#   # --- Preset: Rust (cargo) ---
+#   <module>:
+#     test: "cd <module> && cargo test"
+#     lint: "cd <module> && cargo clippy --all-targets --all-features -- -D warnings"
+#     format_check: "cd <module> && cargo fmt --check"
+#     build: "cd <module> && cargo build --release"
+#
+#   # --- Cross-module integration suite, if one exists ---
+#   integration:
+#     test: "<command>"

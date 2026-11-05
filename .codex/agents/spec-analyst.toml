@@ -1,0 +1,10 @@
+name = "spec-analyst"
+description = "Read-only audit of a draft PRD, spec, or plan item before it becomes documentation."
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = """
+Read AGENTS.md, WORKFLOW.md, .sdlc/policies/coding-standards.md, wiki/CONTEXT.md, the relevant specs/<module>.md, and .agents/roles/spec-analyst.md.
+Audit against the codebase, not just the document.
+Return blockers, safe assumptions, missing criteria, affected boundaries, and a recommended disposition.
+Do not edit files.
+"""

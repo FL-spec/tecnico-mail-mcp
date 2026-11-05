@@ -1,0 +1,77 @@
+name: Sync Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'wiki/**'
+      - '!wiki/sources/**'
+      - '.github/scripts/flatten_wiki.py'
+      - '.github/workflows/sync-wiki.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync wiki to GitHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Configure Git Credentials
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Flatten wiki into the GitHub wiki page namespace
+        run: |
+          # A GitHub wiki has no directories in its URL space: a file at
+          # plans/05-x/0-plan_map.md is served at /wiki/0-plan_map, every
+          # path-bearing link 404s, and shared basenames collide onto one page.
+          # So wiki/ keeps a directory tree with relative .md links (correct in
+          # VS Code and the repo browser) and we flatten it here. The script
+          # exits non-zero on a page-name collision.
+          python3 .github/scripts/flatten_wiki.py wiki flat_wiki
+
+      - name: Sync Wiki
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          WIKI_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git"
+
+          # A repo's wiki repository does not exist until someone creates the first
+          # page by hand (repo -> Wiki tab -> Create the first page). Until then the
+          # clone below fails. That is a setup step, not a broken build, so skip with
+          # a warning rather than failing every push on a freshly cloned template.
+          if ! git ls-remote "$WIKI_URL" >/dev/null 2>&1; then
+            echo "::warning title=Wiki not initialized::This repo has no wiki yet, so wiki/ was not mirrored. Open the repo's Wiki tab and create any page once, then re-run this workflow. Nothing else in the flow depends on it."
+            exit 0
+          fi
+
+          # Clone the GitHub Wiki repository
+          git clone "$WIKI_URL" temp_wiki
+
+          # Navigate into the cloned wiki directory
+          cd temp_wiki
+
+          # Clean the cloned directory to handle any deleted files in our source repo wiki
+          # We keep the .git folder intact
+          find . -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
+
+          # Copy the flattened pages into the cloned directory
+          cp -r ../flat_wiki/. .
+
+          # Check if there are any changes to commit
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected in the wiki. Preparing commit..."
+            git add -A
+            git commit -m "Sync wiki: ${COMMIT_MSG:-Manual trigger} (commit: ${COMMIT_SHA})"
+            git push origin HEAD
+          else
+            echo "No changes detected in the wiki. Skipping push."
+          fi

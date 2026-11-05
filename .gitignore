@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+
+# Env / secrets
+.env
+.env.*
+*.local
+
+# Logs
+*.log
+
+# Dependencies — one entry per stack preset in .github/workflows/ci.yml
+node_modules/
+.venv/
+venv/
+
+# Build output
+dist/
+build/
+target/
+
+# fl-* worktrees — issue branches and prototypes live here, never committed
+.worktrees/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Vale package cache — restored by `vale sync`
+.vale/styles/Google/
+.vale/styles/signs-of-ai-writing/

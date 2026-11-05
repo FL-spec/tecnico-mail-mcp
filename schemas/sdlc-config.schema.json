@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/FL-spec/Setup/schemas/sdlc-config.schema.json",
+  "title": "SDLC configuration",
+  "description": "The shape of .sdlc/sdlc-config.yml — the single source of truth every fl-* skill and every agent role reads its identifiers, path templates and gate commands from. Validated by scripts/validate_workflow.py.",
+  "type": "object",
+  "required": ["pm_tool", "default_branch", "github", "modules", "implement", "prototype", "review", "quality_gates"],
+  "additionalProperties": true,
+  "properties": {
+    "pm_tool": { "const": "github" },
+    "wiki_tool": { "type": "string" },
+    "default_branch": { "type": "string", "minLength": 1 },
+    "wiki_sync": {
+      "type": "object",
+      "required": ["enabled", "source_path"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "source_path": { "type": "string" },
+        "target_branch": { "type": "string" },
+        "target": { "type": "string" },
+        "github": { "type": "object" }
+      }
+    },
+    "github": {
+      "type": "object",
+      "required": ["host", "owner", "repository", "slug", "project"],
+      "properties": {
+        "host": { "type": "string" },
+        "owner": { "type": "string" },
+        "repository": { "type": "string" },
+        "slug": { "type": "string" },
+        "project": {
+          "type": "object",
+          "required": ["enabled"],
+          "description": "The project board is optional. When enabled is false every board move is skipped and state is read from issue open/closed plus PR state.",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "number": { "type": ["integer", "string"] },
+            "id": { "type": "string" },
+            "status_field_id": { "type": "string" },
+            "statuses": {
+              "type": "object",
+              "required": ["backlog", "ready", "in_progress", "in_review", "done"],
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "description": "One entry per top-level directory a vertical slice can live in. Each gets a child PRD and a spec.",
+      "items": {
+        "type": "object",
+        "required": ["name", "path"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "stack": { "type": "string" }
+        }
+      }
+    },
+    "implement": {
+      "type": "object",
+      "required": ["worktree_path", "branch", "max_changed_loc"],
+      "properties": {
+        "worktree_path": { "type": "string", "pattern": "\\{issue\\}" },
+        "branch": { "type": "string", "pattern": "\\{issue\\}" },
+        "max_changed_loc": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "prototype": {
+      "type": "object",
+      "required": ["worktree_path", "branch"],
+      "properties": {
+        "worktree_path": { "type": "string", "pattern": "\\{slug\\}" },
+        "branch": { "type": "string", "pattern": "\\{slug\\}" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": ["bots"],
+      "properties": { "bots": { "type": "array", "items": { "type": "string" } } }
+    },
+    "quality_gates": {
+      "type": "object",
+      "description": "One block per module, because modules can be independently deployed with their own toolchains. Empty only before /fl-bootstrap has run.",
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": { "type": "string" }
+      }
+    }
+  }
+}

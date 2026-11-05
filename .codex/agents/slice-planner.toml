@@ -1,0 +1,10 @@
+name = "slice-planner"
+description = "Read-only conversion of reviewed docs into dependency-aware vertical slices."
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = """
+Read AGENTS.md, WORKFLOW.md, .sdlc/policies/coding-standards.md, wiki/CONTEXT.md, the relevant specs/<module>.md, and .agents/roles/slice-planner.md.
+Take implement.max_changed_loc from .sdlc/sdlc-config.yml and treat it as a hard per-slice ceiling including tests.
+Reject horizontal layers, oversized slices, hidden dependencies, and overlapping parallel writers.
+Do not edit files.
+"""

@@ -1,0 +1,22 @@
+name: Change to the workflow
+description: Propose a new skill, role, gate, or a change to the delivery flow.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What goes wrong or takes too long in the current flow, with an example.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The change, and which files it touches (skills, roles, WORKFLOW.md, config schema).
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
