@@ -7,7 +7,8 @@ files, and publishes a GitHub release with `tecnico-mail.mcpb`, `tecnico-mail-mc
 ## Cut a release
 
 1. Move `## Unreleased` in `CHANGELOG.md` to a new version heading.
-2. Set the version in `package.json`, and run `npm install --package-lock-only`.
+2. Set the version in `package.json`, and in the header and footer of `README.md`. Then run
+   `npm install --package-lock-only`.
 3. Merge that to `main`.
 4. Run `tecnico-mail-mcp doctor` from a build of `main`, on a real Técnico account. CI can't do this.
 5. Tag and push:
@@ -17,7 +18,7 @@ files, and publishes a GitHub release with `tecnico-mail.mcpb`, `tecnico-mail-mc
    git push origin vX.Y.Z
    ```
 
-The workflow fails if the tag doesn't match `package.json`.
+The workflow fails if the tag doesn't match `package.json`, or if a final tag isn't on `main`.
 
 ## Turn on npm publishing
 

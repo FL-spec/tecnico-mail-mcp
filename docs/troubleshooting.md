@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Start with `doctor`, if you installed through the command line. It checks both logins and prints
-your folders. It changes nothing, and prints no mail and no password.
+the server features and the folders it detects. It changes nothing, and prints no mail and no password.
 
 ```bash
 npx -y --package=https://github.com/FL-spec/tecnico-mail-mcp/releases/latest/download/tecnico-mail-mcp.tgz tecnico-mail-mcp doctor
@@ -14,7 +14,7 @@ not your email address. Check that the password works at
 [webmail](https://webmail.tecnico.ulisboa.pt). Then restart your client, because the server stops
 trying after one rejected login, which protects your account from a lockout.
 
-**"This looks like an email address."** The error names the value. You put your address in the Técnico ID field. The ID has the
+**The error says your ID "looks like an email address."** You put your address in the Técnico ID field. The ID has the
 form `istxxxxx`.
 
 **"A Técnico address never has the form istxxxxx@tecnico.ulisboa.pt."** Use the address you chose at activation,
@@ -29,7 +29,7 @@ works, for example by adding multi-factor login. Check DSI's announcements, and
 
 ## Keychain
 
-**"This machine has no usable keychain."** Common on headless Linux. Install and unlock a Secret
+**"Logins work, but this machine has no usable keychain, so the password was not saved."** Common on headless Linux. Install and unlock a Secret
 Service provider such as GNOME Keyring, or use
 [environment variables](clients.md#machines-without-a-keychain), which is less safe.
 

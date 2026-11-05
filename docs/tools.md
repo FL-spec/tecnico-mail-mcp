@@ -58,7 +58,7 @@ These exist unless you choose `--read-only`.
 
 | Input | Type | Meaning |
 | --- | --- | --- |
-| `to`, `cc`, `bcc` | list of addresses | 20 in total at most |
+| `to`, `cc`, `bcc` | list of addresses | 20 in total at most. Give at least one unless you use `reply_to` |
 | `subject` | string | one line |
 | `body` | string | required, plain text |
 | `reply_to` | object | `folder`, `uid`, `reply_all`, `quote`: makes this a threaded reply |

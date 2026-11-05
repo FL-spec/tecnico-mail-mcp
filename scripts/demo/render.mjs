@@ -17,7 +17,7 @@ const PAD = 24;
 const TOP = 46;
 const CHARS = 90;
 
-const escape = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const escapeXml = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const clip = (text, n = CHARS) => (text.length > n ? `${text.slice(0, n - 1)}…` : text);
 const senderName = (entry) => entry.replace(/ <.*$/, "");
 const day = (iso) => iso.slice(0, 10);
@@ -57,7 +57,7 @@ const rows = lines.map((line, i) => {
     `@keyframes l${i}{0%,${start}%{opacity:0}${(Number(start) + 0.01).toFixed(2)}%,100%{opacity:1}}.l${i}{animation:l${i} ${total.toFixed(1)}s infinite}`,
   );
   const y = TOP + (i + 1) * LINE;
-  return `<text class="l${i}" x="${PAD}" y="${y}" fill="${line.color}" xml:space="preserve">${escape(line.text)}</text>`;
+  return `<text class="l${i}" x="${PAD}" y="${y}" fill="${line.color}" xml:space="preserve">${escapeXml(line.text)}</text>`;
 });
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" role="img" aria-label="Recorded MCP tool calls on fictional mail: a search, reading one message, and saving a draft reply that is not sent.">

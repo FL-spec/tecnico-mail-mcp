@@ -30,6 +30,7 @@ This is an independent project. Report problems with Técnico's mail service to 
 - **To `mail.tecnico.ulisboa.pt`:** your Técnico ID and password, and the mail you send or draft.
 - **To your AI provider:** whatever the tools return, through your client. That's the provider's
   data handling, not this project's. Check it before reading confidential mail through an AI.
+- **To GitHub or npm:** an ordinary download request, if you install with `npx`.
 - **To anyone else:** nothing. There is no telemetry and no update check.
 
 ### What it can't protect against
