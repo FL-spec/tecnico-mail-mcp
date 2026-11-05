@@ -106,7 +106,7 @@ function port(env: Env, key: string, fallback: number): number {
 }
 
 const NOT_LOGGED_IN =
-  "Run `npx tecnico-mail-mcp login`, or set TECNICO_ID, TECNICO_EMAIL and TECNICO_PASSWORD. " +
+  "Run the login command (see docs/clients.md), or set TECNICO_ID, TECNICO_EMAIL and TECNICO_PASSWORD. " +
   "In Claude Desktop, fill in the extension's settings.";
 
 export interface SettingsSources {
