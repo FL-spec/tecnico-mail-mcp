@@ -42,7 +42,10 @@ export function defaultDependencies(prompter: Prompter): Dependencies {
 }
 
 /** Tests both logins before anything is saved, so a failed login leaves nothing behind. */
-export async function login(deps: Dependencies, base: Settings): Promise<void> {
+export async function login(
+  deps: Dependencies,
+  base: Pick<Settings, "imap" | "smtp">,
+): Promise<void> {
   const { prompter, print } = deps;
   const id = parseTecnicoId(await prompter.ask("Técnico ID (istxxxxx): "));
   const email = parseTecnicoEmail(await prompter.ask("Técnico email address: "));

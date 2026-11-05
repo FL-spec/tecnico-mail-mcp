@@ -7,7 +7,11 @@ export function createSmtpTransport(settings: Settings): Transporter {
     port: settings.smtp.port,
     secure: true,
     auth: { user: settings.id, pass: settings.password },
-    tls: { minVersion: "TLSv1.2", ...(settings.tlsCa ? { ca: settings.tlsCa } : {}) },
+    tls: {
+      minVersion: "TLSv1.2",
+      rejectUnauthorized: true,
+      ...(settings.tlsCa ? { ca: settings.tlsCa } : {}),
+    },
     connectionTimeout: 20_000,
     greetingTimeout: 20_000,
     socketTimeout: 60_000,

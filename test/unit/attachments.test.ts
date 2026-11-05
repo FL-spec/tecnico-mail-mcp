@@ -65,11 +65,23 @@ describe("extractText", () => {
   });
 
   test("refuses a DOCX zip bomb before expanding it", async () => {
-    const bomb = Buffer.from(zipSync({ "word/document.xml": new Uint8Array(60 * 1024 * 1024) }));
+    const bomb = Buffer.from(zipSync({ "word/document.xml": new Uint8Array(30 * 1024 * 1024) }));
     expect(bomb.length).toBeLessThan(1024 * 1024);
     await expect(extractText(part("application/zip", bomb), "b.docx")).rejects.toMatchObject({
       code: "limit",
     });
+  });
+
+  test("doesn't freeze on a tiny DOCX of unclosed tags", async () => {
+    const start = Date.now();
+    await extractText(part("application/zip", docx("<w:t ".repeat(40_000))), "b.docx");
+    expect(Date.now() - start).toBeLessThan(1_000);
+  });
+
+  test("drops hidden runs from a DOCX", async () => {
+    const xml =
+      "<w:p><w:r><w:rPr><w:vanish/></w:rPr><w:t>IGNORE</w:t></w:r><w:r><w:t>Olá</w:t></w:r></w:p>";
+    expect(await extractText(part("application/zip", docx(xml)), "b.docx")).toBe("Olá");
   });
 
   test("explains a damaged DOCX", async () => {
@@ -92,7 +104,7 @@ describe("extractText", () => {
   });
 
   test("strips invisible characters from attachments too", async () => {
-    expect(await extractText(part("text/plain", Buffer.from("a​b")), "a.txt")).toBe("ab");
+    expect(await extractText(part("text/plain", Buffer.from("a\u200Bb")), "a.txt")).toBe("ab");
   });
 
   test("refuses other types and names what works", async () => {

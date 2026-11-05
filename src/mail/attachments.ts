@@ -6,7 +6,7 @@ import { sanitizeText } from "./sanitize.js";
 
 export const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
 /** Limits an expanded DOCX, whose compressed form can be far smaller than its content. */
-const MAX_EXPANDED_BYTES = 50 * 1024 * 1024;
+const MAX_EXPANDED_BYTES = 20 * 1024 * 1024;
 
 const TEXT_TYPES = new Set(["application/json", "application/xml", "text/csv", "text/calendar"]);
 const TEXT_EXTENSIONS = /\.(txt|md|csv|tsv|json|xml|log|ics|tex)$/i;
@@ -61,11 +61,14 @@ function decodeXmlEntities(text: string): string {
 
 function docxText(content: Buffer): string {
   let tooLarge = false;
+  let seen = false;
   let files: Record<string, Uint8Array>;
   try {
     files = unzipSync(new Uint8Array(content), {
       filter(file) {
-        if (file.name !== "word/document.xml") return false;
+        // A crafted archive can repeat this entry to make every copy expand.
+        if (file.name !== "word/document.xml" || seen) return false;
+        seen = true;
         tooLarge = file.originalSize > MAX_EXPANDED_BYTES;
         return !tooLarge;
       },
@@ -77,16 +80,29 @@ function docxText(content: Buffer): string {
     throw new MailError("limit", "This DOCX file expands to too much text to read here.");
   const xml = files["word/document.xml"];
   if (!xml) throw new MailError("unsupported", "This DOCX file has no document text.");
-  const pieces = new TextDecoder()
-    .decode(xml)
-    .match(/<w:t(?:\s[^>]*)?>[^<]*<\/w:t>|<w:tab\/>|<\/w:p>/g);
-  return (pieces ?? [])
-    .map((piece) => {
-      if (piece === "</w:p>") return "\n";
-      if (piece === "<w:tab/>") return "\t";
-      return decodeXmlEntities(piece.replace(/<[^>]+>/g, ""));
-    })
-    .join("");
+  return wordXmlText(new TextDecoder().decode(xml));
+}
+
+/** A single pass over the tags: hostile XML must not be able to cause regex backtracking. */
+function wordXmlText(xml: string): string {
+  let out = "";
+  let inText = false;
+  let hiddenRun = false;
+  for (const piece of xml.split("<")) {
+    const end = piece.indexOf(">");
+    if (end < 0) continue;
+    const tag = piece.slice(0, end);
+    const name = /^\/?[\w:]+/.exec(tag)?.[0] ?? "";
+    const selfClosing = tag.endsWith("/");
+    if (name === "w:t" && !selfClosing) inText = true;
+    else if (name === "/w:t") inText = false;
+    else if (name === "w:r") hiddenRun = false;
+    else if (name === "w:vanish") hiddenRun = !/w:val="(0|false)"/.test(tag);
+    else if (name === "w:tab") out += "\t";
+    else if (name === "/w:p") out += "\n";
+    if (inText && !hiddenRun) out += decodeXmlEntities(piece.slice(end + 1));
+  }
+  return out;
 }
 
 /** Reads text out of an attachment in memory. Nothing from an attachment is written to disk. */

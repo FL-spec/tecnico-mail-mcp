@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { MailError } from "./errors.js";
@@ -87,8 +87,9 @@ export async function readIdentityFile(path = configPath()): Promise<Partial<Ide
 }
 
 export async function writeIdentityFile(identity: Identity, path = configPath()): Promise<void> {
-  await mkdir(dirname(path), { recursive: true });
+  await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   await writeFile(path, `${JSON.stringify(identity, null, 2)}\n`, { mode: 0o600 });
+  await chmod(path, 0o600);
 }
 
 export async function deleteIdentityFile(path = configPath()): Promise<void> {
@@ -115,6 +116,19 @@ export interface SettingsSources {
   keychainPassword?: (id: string) => Promise<string | undefined>;
 }
 
+export function endpoints(env: Env = process.env): Pick<Settings, "imap" | "smtp"> {
+  return {
+    imap: {
+      host: value(env, "TECNICO_IMAP_HOST") ?? SERVER_HOST,
+      port: port(env, "TECNICO_IMAP_PORT", 993),
+    },
+    smtp: {
+      host: value(env, "TECNICO_SMTP_HOST") ?? SERVER_HOST,
+      port: port(env, "TECNICO_SMTP_PORT", 465),
+    },
+  };
+}
+
 /** Environment first, then the config file. The password comes from the env or the keychain. */
 export async function loadSettings(sources: SettingsSources = {}): Promise<Settings> {
   const env = sources.env ?? process.env;
@@ -136,13 +150,6 @@ export async function loadSettings(sources: SettingsSources = {}): Promise<Setti
     email,
     password,
     ...(name ? { name } : {}),
-    imap: {
-      host: value(env, "TECNICO_IMAP_HOST") ?? SERVER_HOST,
-      port: port(env, "TECNICO_IMAP_PORT", 993),
-    },
-    smtp: {
-      host: value(env, "TECNICO_SMTP_HOST") ?? SERVER_HOST,
-      port: port(env, "TECNICO_SMTP_PORT", 465),
-    },
+    ...endpoints(env),
   };
 }

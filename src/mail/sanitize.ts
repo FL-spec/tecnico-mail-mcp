@@ -1,21 +1,28 @@
-// Zero-width characters, bidi controls and Unicode tag characters can hide text from a person while
-// a model still reads it. U+200D stays: it joins emoji and is harmless on its own.
-// biome-ignore lint/complexity/useRegexLiterals: a literal invites tools to embed the invisible characters
-const INVISIBLE = new RegExp(
-  "[\\u00AD\\u200B\\u200C\\u200E\\u200F\\u202A-\\u202E\\u2060-\\u2064\\u2066-\\u206F\\uFEFF\\u{E0000}-\\u{E007F}]",
-  "gu",
-);
-// biome-ignore lint/complexity/useRegexLiterals: same reason as above
-const CONTROL = new RegExp("[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F]", "g");
+// Default-ignorable and format characters can hide text from a person while a model still reads it:
+// zero-width characters, bidi controls, Unicode tags, variation selectors, and fillers. U+200D stays:
+// it joins emoji and is harmless on its own.
+const INVISIBLE = /(?!\u200D)[\p{Default_Ignorable_Code_Point}\p{Cf}]/gu;
+// Everything in the control category except tab and line feed. This also catches U+0085.
+const CONTROL = /(?![\t\n])\p{Cc}/gu;
+const LINE_SEPARATORS = /[\u2028\u2029]/g;
 
+/** Runs in linear time: every piece of this text may come from a hostile sender. */
 export function sanitizeText(text: string): string {
   return text
     .replace(/\r\n?/g, "\n")
+    .replace(LINE_SEPARATORS, "\n")
     .replace(INVISIBLE, "")
     .replace(CONTROL, "")
-    .replace(/[ \t]+\n/g, "\n")
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+/** For values shown on one line, such as a subject or a sender's name. */
+export function sanitizeLine(text: string): string {
+  return sanitizeText(text).replace(/\s+/g, " ");
 }
 
 export function truncate(text: string, maxChars: number): { text: string; truncated: boolean } {

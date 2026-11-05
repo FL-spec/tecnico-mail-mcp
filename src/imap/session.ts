@@ -16,7 +16,11 @@ export function createImapClient(settings: Settings): ImapFlow {
     port: settings.imap.port,
     secure: true,
     auth: { user: settings.id, pass: settings.password },
-    tls: { minVersion: "TLSv1.2", ...(settings.tlsCa ? { ca: settings.tlsCa } : {}) },
+    tls: {
+      minVersion: "TLSv1.2",
+      rejectUnauthorized: true,
+      ...(settings.tlsCa ? { ca: settings.tlsCa } : {}),
+    },
     // logger: false keeps protocol traffic, which holds mail content, out of every log.
     logger: false,
     disableAutoIdle: true,
@@ -34,6 +38,7 @@ export class ImapSession {
   #queue: Promise<unknown> = Promise.resolve();
   #lastRunAt = 0;
   #authFailure: MailError | null = null;
+  #generation = 0;
   readonly #timeoutMs: number;
   readonly #minIntervalMs: number;
 
@@ -80,27 +85,50 @@ export class ImapSession {
     await this.#queue;
     const client = this.#client;
     this.#client = null;
-    await client?.logout().catch(() => client.close());
+    if (!client) return;
+    const giveUp = new Promise<void>((resolve) => setTimeout(resolve, 2_000).unref());
+    await Promise.race([client.logout().catch(() => undefined), giveUp]);
+    client.close();
+  }
+
+  /** The IMAP and SMTP logins share one password, so one rejection stops both. */
+  assertLoginAllowed(): void {
+    if (this.#authFailure) throw this.#authFailure;
+  }
+
+  recordAuthFailure(error: MailError): void {
+    this.#authFailure ??= error;
   }
 
   async #attempt<T>(operation: (client: ImapFlow) => Promise<T>, retry: boolean): Promise<T> {
     // A wrong password is not retried: repeated failures could lock the person's Técnico account.
-    if (this.#authFailure) throw this.#authFailure;
+    this.assertLoginAllowed();
     const wait = this.#lastRunAt + this.#minIntervalMs - Date.now();
     if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
     this.#lastRunAt = Date.now();
     try {
-      return await this.#withTimeout(async () => operation(await this.#connected()));
+      return await this.#runOnce(operation);
     } catch (raw) {
       const error = toMailError(raw);
-      if (error.code === "auth") this.#authFailure = error;
       if (error.code !== "network" || !retry) throw error;
+      this.assertLoginAllowed();
       logInfo("connection lost, retrying once");
       this.#drop();
-      return await this.#withTimeout(async () => operation(await this.#connected())).catch((e) => {
+      return await this.#runOnce(operation).catch((e) => {
         throw toMailError(e);
       });
     }
+  }
+
+  #runOnce<T>(operation: (client: ImapFlow) => Promise<T>): Promise<T> {
+    const generation = ++this.#generation;
+    return this.#withTimeout(async () => {
+      const client = await this.#connected();
+      // After a timeout, the next operation owns the connection, so this one must not start.
+      if (generation !== this.#generation)
+        throw new MailError("network", "The operation timed out.");
+      return operation(client);
+    });
   }
 
   async #connected(): Promise<ImapFlow> {
@@ -114,8 +142,16 @@ export class ImapSession {
     client.once("close", () => {
       if (this.#client === client) this.#client = null;
     });
-    await client.connect();
+    // Tracked before connecting, so that a timeout can close a connection still in progress.
     this.#client = client;
+    try {
+      await client.connect();
+    } catch (raw) {
+      const error = toMailError(raw);
+      // This also runs when the operation already timed out, so a late rejection still counts.
+      if (error.code === "auth") this.recordAuthFailure(error);
+      throw error;
+    }
     return client;
   }
 
@@ -129,6 +165,7 @@ export class ImapSession {
     let timer: NodeJS.Timeout | undefined;
     const deadline = new Promise<never>((_, reject) => {
       timer = setTimeout(() => {
+        this.#generation++;
         this.#drop();
         reject(new MailError("network", "The mail server took too long to answer.", "Try again."));
       }, this.#timeoutMs);

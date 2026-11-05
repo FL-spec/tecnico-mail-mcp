@@ -45,8 +45,11 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",
+    "dom-serializer": "2.0.0",
+    "domhandler": "5.0.3",
     "fflate": "0.8.3",
     "html-to-text": "10.0.1",
+    "htmlparser2": "10.1.0",
     "imapflow": "2.10.2",
     "mailparser": "3.14.2",
     "nodemailer": "10.3.1",

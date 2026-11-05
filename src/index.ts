@@ -2,7 +2,7 @@ import { parseArgs } from "node:util";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { defaultDependencies, doctor, login, logout } from "./cli/commands.js";
 import { terminalPrompter } from "./cli/prompt.js";
-import { loadSettings } from "./config.js";
+import { endpoints, loadSettings } from "./config.js";
 import { readPassword } from "./credentials.js";
 import { MailError } from "./errors.js";
 import { logInfo } from "./log.js";
@@ -67,18 +67,8 @@ async function main(): Promise<void> {
 
   const deps = defaultDependencies(terminalPrompter);
   switch (positionals[0]) {
-    case "login": {
-      const defaults = await loadSettings({
-        env: {
-          ...process.env,
-          TECNICO_ID: "ist00000",
-          TECNICO_EMAIL: "x@x.xx",
-          TECNICO_PASSWORD: "x",
-        },
-        file: {},
-      });
-      return login(deps, defaults);
-    }
+    case "login":
+      return login(deps, endpoints());
     case "logout":
       return logout(deps);
     case "doctor":
