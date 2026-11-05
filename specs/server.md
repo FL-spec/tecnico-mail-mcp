@@ -101,8 +101,9 @@ the config file, which `login` writes to `$XDG_CONFIG_HOME/tecnico-mail-mcp/conf
 
 - A real Técnico account has not run this server. CI uses Dovecot 2.4.1, the same server family,
   and a local SMTP server in place of Postfix.
-- Some hidden text still reaches the model: text colored to match its background, and rules with
-  descendant selectors or `@media`. Telling those apart from normal design needs a browser's layout
+- Some hidden text still reaches the model: text colored to match its background, closed `details`
+  elements, `zoom` and translate transforms, and rules with tag, universal, or descendant selectors
+  or `@media`. Telling those apart from normal design needs a browser's layout
   engine. This filter reduces prompt injection and doesn't prevent it; access modes are the control.
 - The sending budget lives in memory, so restarting the server resets it.
 - UIDs assume a stable `UIDVALIDITY`. If the server resets it, an old UID could name another
