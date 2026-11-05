@@ -1,55 +1,69 @@
 # Contributing
 
-Thanks for helping improve the template. Changes here land in every project created from it, so
-the bar is that `make check` and `make docs` pass and that the change keeps Claude and Codex in
-step.
+Bug reports and pull requests are welcome. Test only with your own mailbox or with fictional mail,
+and keep real mail, names, and passwords out of issues, tests, and commits.
 
 ## Set up
 
-You need Python 3.11 or later, [Vale](https://vale.sh/), and an authenticated `gh`.
+You need Node.js 24 or later. The integration tests need Docker, and they start a real Dovecot
+server.
 
 ```bash
-gh repo clone FL-spec/Setup
-cd Setup
-make install-dev
+git clone https://github.com/FL-spec/tecnico-mail-mcp.git
+cd tecnico-mail-mcp
+npm ci
 ```
 
-`make install-dev` adds the libraries that turn on deep validation of `.sdlc/sdlc-config.yml`
-against its JSON Schema.
+## Run the checks
 
-## Make a change
+CI runs all of these.
 
-1. Branch from `main`.
-2. Edit the canonical file first. Roles live in `.agents/roles/`, and the delivery state machine
-   lives in `WORKFLOW.md`. Then update the adapters in `.claude/agents/` and `.codex/agents/` to
-   match.
-3. Run both gates:
+```bash
+npm run typecheck && npm run lint && npm run format:check
+```
 
-   ```bash
-   make check
-   ```
+```bash
+npm test
+```
 
-   ```bash
-   make docs
-   ```
+```bash
+npm run test:integration
+```
 
-4. Open a pull request and fill in the template.
+```bash
+npm run build
+```
 
-`make check` fails if a role and its adapters drift apart, a skill can't be invoked, a Markdown
-link breaks, or the config stops matching its schema. `make docs` fails on any Vale warning. The
-rules, and why two Google rules are off, are in
-[writing-standards.md](.sdlc/policies/writing-standards.md).
+To try your build with your own mailbox, log in, then run `doctor`, which changes nothing:
 
-## Commit messages
+```bash
+node dist/index.js login
+```
 
-Use [Conventional Commits](https://www.conventionalcommits.org/): `feat`, `fix`, `docs`,
-`refactor`, `chore`, with a scope where it helps, as in `docs(skills): …`.
+```bash
+node dist/index.js doctor
+```
 
-## Record notable changes
+## Change something
 
-Add a line under **Unreleased** in [CHANGELOG.md](CHANGELOG.md) for anything a project using the
-template would notice.
+1. Open an issue first for anything beyond a small fix.
+2. Branch from `main`, and write a failing test first. Bug fixes start with a test that reproduces
+   the bug.
+3. If you change behavior that the [specification](docs/specification.md) describes, update it in
+   the same pull request. A hard-to-reverse choice gets a new
+   [decision record](docs/decisions/README.md).
+4. Use commit messages in the form `type(scope): imperative summary`, such as
+   `fix(imap): reconnect after a timeout`.
+
+## Project rules
+
+- **Ask before adding a dependency.** People trust this code with a password, so it stays small and
+  easy to audit.
+- **No secret or mail content goes in a log, an error, or stdout.** Stdout belongs to the protocol.
+- **No option may turn off TLS verification.**
+- **Treat every email as hostile input.** Parsing must run in linear time.
+- **Features that send mail stay off by default,** and bulk sending is out of scope.
 
 ## Code of conduct
 
-Taking part means following the [code of conduct](.github/CODE_OF_CONDUCT.md).
+This project follows the [Contributor Covenant](.github/CODE_OF_CONDUCT.md).

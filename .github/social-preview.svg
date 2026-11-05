@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#0d1117"/>
+  <g transform="translate(96,96) scale(0.25)">
+    <rect width="512" height="512" fill="#10243e"/>
+    <rect x="96" y="150" width="320" height="212" rx="28" fill="none" stroke="#f4f7fb" stroke-width="28"/>
+    <path d="M112 172 L256 282 L400 172" fill="none" stroke="#f4f7fb" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="96" y="310" font-family="SF Mono, Menlo, monospace" font-size="84" font-weight="700" fill="#e6edf3">tecnico-mail-mcp</text>
+  <text x="96" y="376" font-family="Helvetica Neue, Arial, sans-serif" font-size="34" fill="#9198a1">Connect your own Técnico mailbox to your AI client.</text>
+  <text x="96" y="426" font-family="Helvetica Neue, Arial, sans-serif" font-size="34" fill="#9198a1">It runs on your computer. Your password stays there.</text>
+  <text x="96" y="540" font-family="Helvetica Neue, Arial, sans-serif" font-size="26" fill="#6e7681">Unofficial. Not affiliated with IST or DSI.</text>
+</svg>

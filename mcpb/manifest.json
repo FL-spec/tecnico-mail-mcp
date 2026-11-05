@@ -1,0 +1,95 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/schemas/mcpb-manifest-v0.3.schema.json",
+  "manifest_version": "0.3",
+  "name": "tecnico-mail",
+  "display_name": "Técnico Mail (unofficial)",
+  "version": "0.0.0",
+  "description": "Read, search, and draft mail in your own Técnico (IST) mailbox. Runs on your computer. Not affiliated with IST or DSI.",
+  "long_description": "Connects Claude to your own Técnico mailbox over IMAP and SMTP, the same way Thunderbird does. It runs on your computer, and your password goes only to mail.tecnico.ulisboa.pt. Claude Desktop keeps the password in your system keychain.\n\nThe mail Claude reads goes to Anthropic like anything else in your conversation, so think twice about confidential mail. Unofficial: this project is not affiliated with IST or DSI.",
+  "author": {
+    "name": "Francisco Livraghi",
+    "url": "https://github.com/FL-spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FL-spec/tecnico-mail-mcp.git"
+  },
+  "homepage": "https://github.com/FL-spec/tecnico-mail-mcp",
+  "documentation": "https://github.com/FL-spec/tecnico-mail-mcp#readme",
+  "support": "https://github.com/FL-spec/tecnico-mail-mcp/issues",
+  "icon": "icon.png",
+  "license": "MIT",
+  "keywords": ["email", "imap", "tecnico", "ist", "university"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "TECNICO_ID": "${user_config.tecnico_id}",
+        "TECNICO_PASSWORD": "${user_config.password}",
+        "TECNICO_EMAIL": "${user_config.email}",
+        "TECNICO_NAME": "${user_config.name}",
+        "TECNICO_READ_ONLY": "${user_config.read_only}",
+        "TECNICO_ALLOW_SEND": "${user_config.allow_send}"
+      }
+    }
+  },
+  "tools_generated": true,
+  "tools": [
+    { "name": "list_folders", "description": "List folders with unread counts" },
+    { "name": "search_messages", "description": "Search on the server, newest first" },
+    { "name": "get_message", "description": "Read a message as clean text" },
+    { "name": "get_attachment", "description": "Read the text of a PDF, DOCX, or text file" },
+    { "name": "create_draft", "description": "Save a draft for you to review" },
+    { "name": "mark_read", "description": "Mark messages as read or unread" },
+    { "name": "flag", "description": "Flag or unflag messages" },
+    { "name": "move_message", "description": "Move messages to another folder or to Trash" },
+    { "name": "send_message", "description": "Send mail (only if you allow sending)" },
+    { "name": "reply", "description": "Send a reply (only if you allow sending)" }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=24" }
+  },
+  "user_config": {
+    "tecnico_id": {
+      "type": "string",
+      "title": "Técnico ID",
+      "description": "Your login, in the form istxxxxx. Not your email address.",
+      "required": true
+    },
+    "password": {
+      "type": "string",
+      "title": "Password",
+      "description": "Your Técnico ID password. Stored in your system keychain and sent only to mail.tecnico.ulisboa.pt.",
+      "sensitive": true,
+      "required": true
+    },
+    "email": {
+      "type": "string",
+      "title": "Técnico email address",
+      "description": "The address you chose at activation, such as ana.silva@tecnico.ulisboa.pt. It is never istxxxxx@tecnico.ulisboa.pt.",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "title": "Your name",
+      "description": "Shown on mail you send. Optional.",
+      "required": false
+    },
+    "read_only": {
+      "type": "boolean",
+      "title": "Read only",
+      "description": "Claude can read mail, but can't save drafts or change anything.",
+      "default": false
+    },
+    "allow_send": {
+      "type": "boolean",
+      "title": "Allow sending",
+      "description": "Lets Claude send mail as you. Off means Claude can only save drafts, which is safer because an email could try to trick it.",
+      "default": false
+    }
+  }
+}

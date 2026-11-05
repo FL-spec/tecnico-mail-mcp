@@ -1,38 +1,34 @@
 name: Bug report
-description: A skill, role, gate, or workflow in the template does the wrong thing.
+description: The server crashes, errors, or does the wrong thing.
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: "Never paste your password, real mail, or other people's addresses. Replace them with made-up text."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you asked for, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of doctor
+      description: The output of `tecnico-mail-mcp doctor`, if you can run it. Remove your Técnico ID and address.
+      render: text
   - type: input
     id: version
     attributes:
-      label: Template version
-      description: The release tag your project started from, or the commit on main.
-      placeholder: v2.1.1
+      label: Version
+      description: From the extension's page, or `tecnico-mail-mcp --version`.
     validations:
       required: true
-  - type: dropdown
-    id: agent
+  - type: input
+    id: client
     attributes:
-      label: Agent
-      options: [Claude Code, Codex, Both, Not agent-related]
+      label: AI client and operating system
+      placeholder: Claude Desktop on Windows 11
     validations:
       required: true
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened
-      description: The command or prompt you ran, and what the agent or gate did.
-    validations:
-      required: true
-  - type: textarea
-    id: expected
-    attributes:
-      label: What you expected
-    validations:
-      required: true
-  - type: textarea
-    id: output
-    attributes:
-      label: Output
-      description: Relevant output from make check, make docs, or the agent. Remove tokens and private paths.
-      render: console

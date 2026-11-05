@@ -1,0 +1,118 @@
+{
+  "question": "What did my professors send me this week?",
+  "steps": [
+    {
+      "tool": "search_messages",
+      "input": {
+        "from": "tecnico.example",
+        "since": "2026-10-30"
+      },
+      "result": {
+        "folder": "INBOX",
+        "total": 3,
+        "offset": 0,
+        "returned": 3,
+        "messages": [
+          {
+            "uid": 5,
+            "date": "2026-11-04T18:00:00.000Z",
+            "from": [
+              "Prof.ª Inês Fictícia <ines.ficticia@tecnico.example>"
+            ],
+            "to": [
+              "Ana Silva <ana.silva@tecnico.example>"
+            ],
+            "subject": "Bases de Dados: notas do primeiro mini-teste",
+            "unread": true,
+            "flagged": false,
+            "has_attachments": false,
+            "size": 353,
+            "snippet": "As notas estão no Fénix. Quem quiser ver a prova pode passar pelo gabinete na quarta-feira, das 14h às 16h."
+          },
+          {
+            "uid": 3,
+            "date": "2026-11-03T18:00:00.000Z",
+            "from": [
+              "Prof. Rui Demonstração <rui.demonstracao@tecnico.example>"
+            ],
+            "to": [
+              "Ana Silva <ana.silva@tecnico.example>"
+            ],
+            "subject": "Análise Matemática: sala do teste",
+            "unread": true,
+            "flagged": false,
+            "has_attachments": false,
+            "size": 345,
+            "snippet": "O teste de sexta-feira, dia 6, é na sala de exames do Pavilhão de Civil, às 18h. Tragam identificação."
+          },
+          {
+            "uid": 2,
+            "date": "2026-11-02T18:00:00.000Z",
+            "from": [
+              "Prof.ª Marta Exemplo <marta.exemplo@tecnico.example>"
+            ],
+            "to": [
+              "Ana Silva <ana.silva@tecnico.example>"
+            ],
+            "subject": "Sistemas Distribuídos: entrega adiada",
+            "unread": true,
+            "flagged": false,
+            "has_attachments": false,
+            "size": 341,
+            "snippet": "A entrega do projeto passa para dia 20 de novembro, às 23h59. A discussão mantém-se na semana seguinte."
+          }
+        ]
+      }
+    },
+    {
+      "tool": "get_message",
+      "input": {
+        "uid": 2
+      },
+      "result": {
+        "folder": "INBOX",
+        "uid": 2,
+        "subject": "Sistemas Distribuídos: entrega adiada",
+        "from": [
+          "Prof.ª Marta Exemplo <marta.exemplo@tecnico.example>"
+        ],
+        "to": [
+          "Ana Silva <ana.silva@tecnico.example>"
+        ],
+        "cc": [],
+        "reply_to": [],
+        "date": "2026-11-02T18:00:00.000Z",
+        "is_mailing_list": false,
+        "unread": true,
+        "flagged": false,
+        "body": "A entrega do projeto passa para dia 20 de novembro, às 23h59. A discussão mantém-se na semana seguinte.",
+        "body_truncated": false,
+        "body_chars": 103,
+        "attachments": []
+      }
+    },
+    {
+      "tool": "create_draft",
+      "input": {
+        "body": "Obrigada pelo aviso, professora.",
+        "reply_to": {
+          "folder": "INBOX",
+          "uid": 2,
+          "reply_all": false,
+          "quote": false
+        }
+      },
+      "result": {
+        "saved": true,
+        "folder": "Drafts",
+        "uid": 1,
+        "to": [
+          "Prof.ª Marta Exemplo <marta.exemplo@tecnico.example>"
+        ],
+        "cc": [],
+        "subject": "Re: Sistemas Distribuídos: entrega adiada",
+        "note": "Nothing was sent. Review and send it from webmail or a mail client."
+      }
+    }
+  ]
+}
