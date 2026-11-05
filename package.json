@@ -38,7 +38,7 @@
     "test": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
     "typecheck": "tsc --noEmit",
-    "lint": "biome lint .",
+    "lint": "biome lint --error-on-warnings .",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "prepack": "npm run build"

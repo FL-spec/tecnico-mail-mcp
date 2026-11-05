@@ -26,6 +26,12 @@ describe("toMailError", () => {
     expect(e.describe()).not.toContain("hunter2");
   });
 
+  test("explains a refused message and DSI's limits", () => {
+    const e = toMailError({ code: "EENVELOPE", responseCode: 550 });
+    expect(e.code).toBe("server");
+    expect(e.describe()).toMatch(/code 550.*500 per day/);
+  });
+
   test("passes a MailError through", () => {
     const original = new MailError("limit", "Too many.");
     expect(toMailError(original)).toBe(original);

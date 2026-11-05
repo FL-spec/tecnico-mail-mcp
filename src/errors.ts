@@ -39,6 +39,7 @@ const TLS_CODES = new Set([
 ]);
 
 interface LibraryError {
+  responseCode?: number;
   authenticationFailed?: boolean;
   code?: string;
   serverResponseCode?: string;
@@ -66,7 +67,18 @@ export function toMailError(error: unknown): MailError {
       "The connection was closed and no password was sent.",
     );
   }
-  if (e.mailboxMissing || e.serverResponseCode === "NONEXISTENT") {
+  if (e.code === "EENVELOPE" || e.code === "EMESSAGE") {
+    return new MailError(
+      "server",
+      `The mail server refused this message${e.responseCode ? ` (code ${e.responseCode})` : ""}.`,
+      "Check the addresses. DSI also limits sending to 200 emails in 5 minutes, 450 per hour, and 500 per day, counting each recipient.",
+    );
+  }
+  if (
+    e.mailboxMissing ||
+    e.serverResponseCode === "NONEXISTENT" ||
+    e.serverResponseCode === "TRYCREATE"
+  ) {
     return new MailError(
       "not_found",
       "That folder does not exist.",

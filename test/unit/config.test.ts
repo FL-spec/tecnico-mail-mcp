@@ -59,6 +59,7 @@ describe("loadSettings", () => {
   });
 
   test("treats an unfilled Claude Desktop placeholder as unset", async () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: this is the literal Claude Desktop passes
     const env = { TECNICO_ID: "${user_config.id}", TECNICO_EMAIL: "", TECNICO_PASSWORD: "x" };
     await expect(loadSettings({ env, file: {} })).rejects.toThrow(/No Técnico account/);
   });
