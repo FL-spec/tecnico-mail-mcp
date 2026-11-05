@@ -6,6 +6,20 @@ import { sanitizeText } from "./sanitize.js";
 
 const MAX_HTML_CHARS = 500_000;
 const MAX_DEPTH = 256;
+/** htmlparser2 slows down quadratically with depth. Real mail stays far below this estimate. */
+const MAX_ESTIMATED_DEPTH = 10_000;
+const VOID_ELEMENTS = new Set([
+  "br",
+  "hr",
+  "img",
+  "input",
+  "meta",
+  "link",
+  "area",
+  "base",
+  "col",
+  "wbr",
+]);
 const MAX_STYLE_ATTRIBUTE_CHARS = 10_000;
 const MAX_STYLESHEET_CHARS = 200_000;
 const SHORTENED_NOTE = "\n\n[This message was shortened. Open it in webmail to see the rest.]";
@@ -206,11 +220,25 @@ interface Pruned {
   shortened: boolean;
 }
 
+/** A linear scan that returns where nesting gets too deep to parse, or -1. */
+function deepNestingAt(html: string): number {
+  let depth = 0;
+  for (const match of html.matchAll(/<(\/?)([a-z][a-z0-9]*)/gi)) {
+    if (match[1]) depth = Math.max(0, depth - 1);
+    else if (!VOID_ELEMENTS.has((match[2] as string).toLowerCase())) depth++;
+    if (depth > MAX_ESTIMATED_DEPTH) return match.index;
+  }
+  return -1;
+}
+
 /** Removes what a mail client wouldn't show, because that text could be aimed at the model. */
-function visibleHtml(html: string): Pruned {
-  const document = parseDocument(html.slice(0, MAX_HTML_CHARS));
+function visibleHtml(raw: string): Pruned {
+  const capped = raw.slice(0, MAX_HTML_CHARS);
+  const cut = deepNestingAt(capped);
+  const html = cut < 0 ? capped : capped.slice(0, cut);
+  const document = parseDocument(html);
   const sheet = collectStylesheet(document);
-  let shortened = html.length > MAX_HTML_CHARS;
+  let shortened = raw.length > MAX_HTML_CHARS || cut >= 0;
   const start = { invisible: false, tiny: false, transparent: false };
   const stack: { node: Document | Element; depth: number; inherited: Inherited }[] = [
     { node: document, depth: 0, inherited: start },
