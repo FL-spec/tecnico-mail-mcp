@@ -1,6 +1,6 @@
 {
   "name": "tecnico-mail-mcp",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Unofficial MCP server that connects your own Técnico (IST) mailbox to Claude and other AI clients. Runs locally.",
   "keywords": [
     "mcp",
@@ -41,7 +41,8 @@
     "lint": "biome lint --error-on-warnings .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "package:mcpb": "node scripts/build-mcpb.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",
