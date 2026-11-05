@@ -87,8 +87,16 @@ function docxText(content: Buffer): string {
 function wordXmlText(xml: string): string {
   let out = "";
   let inText = false;
+  const withoutComments = xml
+    .split("<!--")
+    .map((part, i) => {
+      if (i === 0) return part;
+      const end = part.indexOf("-->");
+      return end < 0 ? "" : part.slice(end + 3);
+    })
+    .join("");
   let hiddenRun = false;
-  for (const piece of xml.split("<")) {
+  for (const piece of withoutComments.split("<")) {
     const end = piece.indexOf(">");
     if (end < 0) continue;
     const tag = piece.slice(0, end);

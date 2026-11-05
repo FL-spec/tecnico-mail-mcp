@@ -43,7 +43,7 @@ describe("read tools against Dovecot", () => {
         "INBOX",
         message(
           "Newsletter",
-          "NEIIST <geral@neiist.org>",
+          "Núcleo <geral@nucleo.example>",
           "Wed, 4 Nov 2026 10:00:00 +0000",
           "Novidades do núcleo.",
         ),
@@ -151,6 +151,33 @@ describe("read tools against Dovecot", () => {
     );
     const result = await searchMessages(session, { ...base, folder: "Lixo", subject: "Nova" });
     expect(result.total).toBe(1);
+  });
+
+  test("search shows no snippet when the cut falls before the HTML part", async () => {
+    const raw = [
+      "From: x@x.pt",
+      "Subject: Cortada",
+      "Date: Thu, 5 Nov 2026 10:00:00 +0000",
+      'Content-Type: multipart/alternative; boundary="b"',
+      "",
+      "--b",
+      "Content-Type: text/plain",
+      "",
+      `Hostile plain part ${"x ".repeat(50_000)}`,
+      "--b",
+      "Content-Type: text/html",
+      "",
+      "<p>Visível</p>",
+      "--b--",
+      "",
+    ].join("\r\n");
+    await withRawClient(account, (client) => client.append("Enviados", raw));
+    const result = await searchMessages(session, {
+      ...base,
+      folder: "Enviados",
+      subject: "Cortada",
+    });
+    expect(result.messages[0]?.snippet).toBe("");
   });
 
   test("a UID that does not exist gives a clear error", async () => {

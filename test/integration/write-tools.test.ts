@@ -52,6 +52,7 @@ describe("write tools against Dovecot and a TLS SMTP server", () => {
 
   beforeEach(async () => {
     smtp.received.length = 0;
+    smtp.resetAuthAttempts();
     account = freshAccount(smtp.port);
     session = new ImapSession(account);
     budget = new SendingBudget();
@@ -151,6 +152,27 @@ describe("write tools against Dovecot and a TLS SMTP server", () => {
       code: "auth",
     });
     expect(Date.now() - start).toBeLessThan(100);
+  });
+
+  test("parallel sends with a wrong password make one login attempt", async () => {
+    const wrong = { ...account, password: "wrong" };
+    const input = { to: ["a@x.pt"], subject: "s", body: "b" };
+    const results = await Promise.allSettled(
+      [1, 2, 3].map(() => sendMessage(session, wrong, budget, input)),
+    );
+    expect(results.every((r) => r.status === "rejected")).toBe(true);
+    expect(smtp.authAttempts()).toBe(1);
+  });
+
+  test("a server that can't be reached is reported as not sent and costs no budget", async () => {
+    const unreachable = { ...account, smtp: { host: "localhost", port: 1 } };
+    const error = await sendMessage(session, unreachable, budget, {
+      to: ["a@x.pt"],
+      subject: "s",
+      body: "b",
+    }).catch((e) => e);
+    expect(error.describe()).not.toMatch(/may have been sent/);
+    expect(() => budget.reserve(60)).not.toThrow();
   });
 
   test("a connection lost during sending warns against resending and keeps the budget", async () => {

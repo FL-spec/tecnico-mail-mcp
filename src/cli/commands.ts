@@ -65,7 +65,9 @@ export async function login(
     return;
   }
   print(`Logins work, but this machine has no usable keychain, so the password was not saved.`);
-  print("Set TECNICO_PASSWORD in your MCP client's config instead. See the README for the risks.");
+  print(
+    "Set TECNICO_PASSWORD in your MCP client's config instead. docs/clients.md explains the risks.",
+  );
 }
 
 export async function logout(deps: Dependencies): Promise<void> {

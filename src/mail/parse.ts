@@ -20,6 +20,8 @@ export interface ParsedMail {
   references: string[];
   isMailingList: boolean;
   body: string;
+  /** False when the body came from a plain part, or from no part at all. */
+  bodyFromHtml: boolean;
   attachments: MailAttachment[];
   rawAttachments: Attachment[];
 }
@@ -40,15 +42,6 @@ function formatAddress(name?: string, address?: string): string {
 /** Keeps a hostile message from making later steps work through an enormous string. */
 const MAX_TEXT_CHARS = 5_000_000;
 
-/**
- * Prefers the HTML part, because that's what a person sees in webmail. A plain part can hold
- * different text, aimed at software rather than at the reader.
- */
-function bestBody(text: string | undefined, html: string | false | undefined): string {
-  const converted = html ? htmlToText(html) : "";
-  return converted || sanitizeText((text ?? "").slice(0, MAX_TEXT_CHARS));
-}
-
 const LIST_HEADERS = ["list", "list-id", "list-post", "mailing-list", "x-mailman-version"];
 
 function looksLikeMailingList(headers: Map<string, unknown>): boolean {
@@ -64,11 +57,13 @@ function isRealAttachment(part: Attachment): boolean {
 export async function parseMail(source: Buffer): Promise<ParsedMail> {
   const mail = await simpleParser(source, {
     skipHtmlToText: true,
-    skipTextToHtml: true,
     skipTextLinks: true,
     skipImageLinks: true,
   });
   const rawAttachments = mail.attachments.filter(isRealAttachment);
+  // Prefers the HTML, because that's what a person sees in webmail. A plain part can hold different
+  // text, aimed at software rather than at the reader.
+  const converted = mail.html ? htmlToText(mail.html) : "";
   const references = mail.references;
   return {
     subject: sanitizeLine(mail.subject ?? ""),
@@ -80,7 +75,8 @@ export async function parseMail(source: Buffer): Promise<ParsedMail> {
     messageId: mail.messageId ?? null,
     references: Array.isArray(references) ? references : references ? [references] : [],
     isMailingList: looksLikeMailingList(mail.headers),
-    body: bestBody(mail.text, mail.html),
+    body: converted || sanitizeText((mail.text ?? "").slice(0, MAX_TEXT_CHARS)),
+    bodyFromHtml: converted !== "",
     attachments: rawAttachments.map((part, index) => ({
       index,
       filename: sanitizeLine(part.filename ?? `attachment-${index}`),

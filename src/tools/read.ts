@@ -8,8 +8,8 @@ import { sanitizeLine, truncate } from "../mail/sanitize.js";
 
 export const MAX_RESULTS = 50;
 const MAX_FOLDERS = 200;
-/** Enough of the message start to find its first text part. */
-const SNIPPET_BYTES = 16 * 1024;
+/** Enough of the message start to reach the HTML part of most mail. */
+const SNIPPET_BYTES = 64 * 1024;
 const SNIPPET_CHARS = 200;
 /** Técnico's SMTP server advertises 36,700,160 bytes as its largest message. */
 export const MAX_MESSAGE_BYTES = 40 * 1024 * 1024;
@@ -67,6 +67,11 @@ function buildQuery(input: SearchInput): SearchObject {
   return Object.keys(query).length > 0 ? query : { all: true };
 }
 
+function hasHtmlPart(part: FetchMessageObject["bodyStructure"]): boolean {
+  if (!part) return false;
+  return part.type === "text/html" || (part.childNodes ?? []).some(hasHtmlPart);
+}
+
 function hasAttachments(part: FetchMessageObject["bodyStructure"]): boolean {
   if (!part) return false;
   if (part.disposition === "attachment") return true;
@@ -109,7 +114,11 @@ export async function searchMessages(session: ImapSession, input: SearchInput) {
     fetched
       .sort((a, b) => b.uid - a.uid)
       .map(async (m) => {
-        const { body } = m.source ? await parseMail(m.source) : { body: "" };
+        const parsed = m.source ? await parseMail(m.source) : null;
+        // If the cut fell before the HTML part, only the plain part was parsed. It may say something
+        // the HTML doesn't, so show no snippet rather than text a person wouldn't see.
+        const body =
+          parsed && (parsed.bodyFromHtml || !hasHtmlPart(m.bodyStructure)) ? parsed.body : "";
         const date = m.envelope?.date ?? m.internalDate;
         return {
           uid: m.uid,

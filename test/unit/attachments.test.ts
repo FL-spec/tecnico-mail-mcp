@@ -78,6 +78,11 @@ describe("extractText", () => {
     expect(Date.now() - start).toBeLessThan(1_000);
   });
 
+  test("ignores XML comments in a DOCX", async () => {
+    const xml = "<w:p><!-- <w:t>IGNORE</w:t> --><w:r><w:t>Olá</w:t></w:r></w:p>";
+    expect(await extractText(part("application/zip", docx(xml)), "b.docx")).toBe("Olá");
+  });
+
   test("drops hidden runs from a DOCX", async () => {
     const xml =
       "<w:p><w:r><w:rPr><w:vanish/></w:rPr><w:t>IGNORE</w:t></w:r><w:r><w:t>Olá</w:t></w:r></w:p>";

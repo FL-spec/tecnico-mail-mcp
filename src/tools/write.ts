@@ -93,7 +93,16 @@ function wasDefinitelyNotSent(raw: unknown): boolean {
   return code === "EAUTH" || code === "EENVELOPE" || code === "EMESSAGE";
 }
 
-async function deliver(
+function deliver(
+  session: ImapSession,
+  settings: Settings,
+  budget: SendingBudget,
+  mail: OutgoingMail,
+) {
+  return budget.serialize(() => deliverNow(session, settings, budget, mail));
+}
+
+async function deliverNow(
   session: ImapSession,
   settings: Settings,
   budget: SendingBudget,
@@ -105,10 +114,17 @@ async function deliver(
   const transport = createSmtpTransport(settings);
   let info: { accepted?: unknown[] | undefined; rejected?: unknown[] | undefined };
   try {
+    // A failure here happens before any message exists on the server, so it's safe to report as
+    // not sent: a wrong password, a bad certificate, or a server that can't be reached.
+    await transport.verify().catch((raw: unknown) => {
+      refund();
+      const error = toMailError(raw);
+      if (error.code === "auth") session.recordAuthFailure(error);
+      throw error;
+    });
     info = await transport.sendMail({ envelope: built.envelope, raw: built.delivered });
   } catch (raw) {
-    const error = toMailError(raw);
-    if (error.code === "auth") session.recordAuthFailure(error);
+    if (raw instanceof MailError) throw raw;
     if (!wasDefinitelyNotSent(raw)) {
       throw new MailError(
         "network",
@@ -117,7 +133,7 @@ async function deliver(
       );
     }
     refund();
-    throw error;
+    throw toMailError(raw);
   } finally {
     transport.close();
   }
