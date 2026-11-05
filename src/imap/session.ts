@@ -65,6 +65,8 @@ export class ImapSession {
       async (client) => {
         const lock = await client.getMailboxLock(path, { readOnly: mode === "read" });
         try {
+          // A folder that stays selected doesn't see new mail until the server is asked to sync.
+          await client.noop();
           return await operation(client);
         } finally {
           lock.release();
