@@ -1,6 +1,7 @@
 # Architecture
 
-This describes the system as built. Where it and the code disagree, the code wins.
+This describes the system that plan 01 builds. Once that lands, it describes the system as built,
+and where it and the code disagree, the code wins.
 
 ## System overview
 
