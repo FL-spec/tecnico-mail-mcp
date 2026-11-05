@@ -45,7 +45,7 @@ Your password stays on your computer and goes to `mail.tecnico.ulisboa.pt` and n
 | Where is it stored? | In your OS keychain, by Claude Desktop or by the `login` command. |
 | Where does it go? | Only to `mail.tecnico.ulisboa.pt`, over TLS with a verified certificate. |
 | Is there a server in the middle? | No. There is no hosted service and no telemetry. |
-| Can you read the code? | Yes. It's about 2,000 lines of TypeScript in [`src/`](src), all open source. |
+| Can you read the code? | Yes. It's about 2,300 lines of TypeScript in [`src/`](src), all open source. |
 | Can you check the download? | Yes. CI builds every release and signs its provenance. See [verifying a release](SECURITY.md#verify-a-release). |
 
 **Your mail does leave your computer in one way.** Whatever the AI reads goes to the provider

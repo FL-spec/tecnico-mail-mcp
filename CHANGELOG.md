@@ -18,4 +18,4 @@ First public release.
 - A Claude Desktop extension, with the password in the OS keychain.
 - `login`, `logout`, and `doctor` commands for other clients.
 - Local sending limits below DSI's.
-- Removal of hidden HTML and invisible Unicode from everything a tool returns.
+- Removal of common hidden HTML and invisible Unicode from everything a tool returns.

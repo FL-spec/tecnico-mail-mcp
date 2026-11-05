@@ -38,6 +38,10 @@ Service provider such as GNOME Keyring, or use
 **Claude says it can't send mail.** Sending is off by default. Turn on "Allow sending" in the
 extension's settings, or add `--allow-send`, and restart. Drafts work without it.
 
+**"The connection failed while sending, so this message may have been sent."** The connection
+dropped partway, so the server may already have the message. Check with the recipient, or look in
+webmail, before you send it again.
+
 **"The mail server refused this message."** Check the addresses. You may also have reached DSI's
 limits: 200 emails in 5 minutes, 450 per hour, or 500 per day, counting each recipient. Reaching the
 daily limit blocks sending for 24 hours.

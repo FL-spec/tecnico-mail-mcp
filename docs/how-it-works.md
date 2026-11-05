@@ -31,12 +31,16 @@ The [decision records](../wiki/architecture/00-architecture.md#decisions) give t
 
 Anyone can email you, so the server treats mail as hostile input.
 
-- It removes HTML elements a mail client wouldn't show, such as `display:none`, because their text
-  could be aimed at the model.
-- It strips zero-width characters, bidi controls, and Unicode tag characters.
+- It reads the HTML part when there is one, because that's what you see in webmail. A plain part can
+  hold different text, aimed at software.
+- It removes HTML elements a mail client wouldn't show, because their text could be aimed at the
+  model. That covers the `hidden` attribute, inline styles such as `display:none` and off-screen
+  positions, and simple style sheet rules. It can't detect text colored to match its background.
+- It strips zero-width characters, bidi controls, Unicode tags, and other invisible characters.
 - The server's instructions and each read tool's description tell the model that mail is data, not
   instructions. This reduces prompt injection, and nothing can fully prevent it.
 - Attachments are parsed in memory, with limits on size and on DOCX expansion, and never saved.
+- Parsing runs in linear time and input is capped, so one message can't freeze the server.
 - CR and LF in subjects and addresses are refused, which stops header injection.
 
 ## The connection
@@ -44,7 +48,7 @@ Anyone can email you, so the server treats mail as hostile input.
 One connection handles everything, and operations run one at a time, at least 100 ms apart. A closed
 connection is replaced by a new one. Only reads retry after a dropped connection, because a write
 may already have applied. A rejected password stops all further attempts until restart, because
-repeated failures could lock the account.
+repeated failures could lock the account. That holds for both IMAP and SMTP.
 
 ## Testing
 

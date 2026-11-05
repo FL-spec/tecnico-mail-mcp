@@ -35,8 +35,9 @@ This is an independent project. Report problems with Técnico's mail service to 
 ### What it can't protect against
 
 **Prompt injection.** An email can contain text that tries to make the model do something. The
-server removes hidden text and tells the model that mail is data, and this reduces the risk without
-removing it. A model could still be misled by visible text. So:
+server removes common kinds of hidden text and tells the model that mail is data, and this reduces
+the risk without removing it. A model could still be misled by visible text, or by text colored to
+match its background, which the server can't detect. So:
 
 - Keep the default mode, or `--read-only`, unless you need sending.
 - If you use `--allow-send`, read each confirmation prompt before you approve a send. MCP annotations
