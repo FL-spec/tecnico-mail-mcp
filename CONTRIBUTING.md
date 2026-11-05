@@ -16,7 +16,7 @@ npm ci
 
 ## Run the checks
 
-CI runs all of these, and `.sdlc/sdlc-config.yml` lists them as the project's quality gates.
+CI runs all of these.
 
 ```bash
 npm run typecheck && npm run lint && npm run format:check
@@ -49,8 +49,9 @@ node dist/index.js doctor
 1. Open an issue first for anything beyond a small fix.
 2. Branch from `main`, and write a failing test first. Bug fixes start with a test that reproduces
    the bug.
-3. If you change behavior that [`specs/server.md`](specs/server.md) describes, update the spec in the
-   same pull request.
+3. If you change behavior that the [specification](docs/specification.md) describes, update it in
+   the same pull request. A hard-to-reverse choice gets a new
+   [decision record](docs/decisions/README.md).
 4. Use commit messages in the form `type(scope): imperative summary`, such as
    `fix(imap): reconnect after a timeout`.
 
@@ -60,27 +61,8 @@ node dist/index.js doctor
   easy to audit.
 - **No secret or mail content goes in a log, an error, or stdout.** Stdout belongs to the protocol.
 - **No option may turn off TLS verification.**
-- **Treat every email as hostile input.**
+- **Treat every email as hostile input.** Parsing must run in linear time.
 - **Features that send mail stay off by default,** and bulk sending is out of scope.
-
-## How this repository is organized
-
-| Path | Holds |
-| --- | --- |
-| `src/` | the server |
-| `test/` | unit and integration tests |
-| `docs/` | documentation for users |
-| `specs/` | the exact contract of the server |
-| `wiki/` | the product requirements, architecture, decisions, and plans |
-| `AGENTS.md`, `WORKFLOW.md`, `.claude/`, `.agents/`, `.codex/` | the spec-driven workflow from the [Setup template](https://github.com/FL-spec/Setup) |
-
-Prose also has a gate, which needs [Vale](https://vale.sh/):
-
-```bash
-make docs
-```
-
-`make check` validates the workflow files and scans for secrets. It needs Python 3.11 or later.
 
 ## Code of conduct
 

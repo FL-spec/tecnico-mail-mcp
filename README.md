@@ -8,13 +8,11 @@ Connect your own Técnico mailbox to Claude and other AI clients. It runs on you
 [![Release](https://img.shields.io/github/v/release/FL-spec/tecnico-mail-mcp)](https://github.com/FL-spec/tecnico-mail-mcp/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-`v1.0.0`
-
 **Unofficial. Not affiliated with IST or DSI.**
 
 ### [Download for Claude Desktop](https://github.com/FL-spec/tecnico-mail-mcp/releases/latest/download/tecnico-mail.mcpb)
 
-[Install](#install) · [Is your password safe?](#is-your-password-safe) · [Tools](#tools) · [Other clients](docs/clients.md) · [Troubleshooting](docs/troubleshooting.md)
+[Install](#install) · [Is your password safe?](#is-your-password-safe) · [Tools](#tools) · [Other clients](docs/clients.md) · [Troubleshooting](docs/troubleshooting.md) · [Changelog](CHANGELOG.md)
 
 <img src="docs/assets/demo.svg" alt="Recorded tool calls on fictional mail: a search finds three messages from professors, one is read as clean text, and a reply is saved as a draft that is not sent." width="760">
 
@@ -115,8 +113,3 @@ Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md
 supported by Instituto Superior Técnico or its IT services (DSI). "Técnico" names the institution
 whose public mail service the tool connects to. Don't ask DSI for support with this tool.
 
----
-
-<div align="center">
-<sub>v1.0.0. Release history is in the <a href="CHANGELOG.md">changelog</a>.</sub>
-</div>

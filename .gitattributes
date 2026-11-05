@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.png binary
+package-lock.json linguist-generated
+docs/assets/* linguist-generated

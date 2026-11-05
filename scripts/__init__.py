@@ -1,2 +1,0 @@
-"""Setup template validation tools."""
-

@@ -15,7 +15,8 @@ students install nothing else.
 email can carry text written to manipulate the model, and client confirmations are only hints. A
 default install can't send, whatever a message says.
 
-The [decision records](../wiki/architecture/00-architecture.md#decisions) give the full reasoning.
+The [decision records](decisions/README.md) give the full reasoning, and the
+[specification](specification.md) gives the exact contract.
 
 ## Handling Técnico mail
 
