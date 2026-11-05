@@ -29,3 +29,4 @@ residual risk.
 ## Non-blocking notes carried forward
 
 Findings that are real but out of scope here, and where they're tracked.
+- [ ] No real mail, names, or passwords in tests, fixtures, or commits.
